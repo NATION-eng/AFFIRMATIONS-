@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Daily Affirmation 💖</title>
+  <style>
+    /* --- Reset and base styles --- */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #ffb6c1, #ff69b4);
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 30px 25px;
+      border-radius: 20px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+      max-width: 400px;
+      width: 100%;
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 20px;
+    }
+
+    #affirmation {
+      font-size: 1.2rem;
+      font-weight: 500;
+      margin-bottom: 25px;
+      line-height: 1.4;
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    button {
+      background-color: white;
+      color: #ff69b4;
+      border: none;
+      padding: 12px 25px;
+      border-radius: 30px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #ffe4ec;
+      transform: scale(1.05);
+    }
+
+    /* --- Responsive text sizing --- */
+    @media (max-width: 500px) {
+      h1 {
+        font-size: 1.5rem;
+      }
+
+      #affirmation {
+        font-size: 1rem;
+      }
+
+      .container {
+        padding: 20px;
+      }
+    }
+
+    /* --- Simple fade animation --- */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>💌 Daily Affirmation</h1>
+    <p id="affirmation"></p>
+    <button onclick="newAffirmation()">New Affirmation 💫</button>
+  </div>
+
+  <script>
+    const affirmations = [
+      "You are loved, cherished, and appreciated.",
+      "You are doing amazing — never forget that.",
+      "You bring light and joy wherever you go.",
+      "Your smile can brighten even the darkest days.",
+      "You are strong, beautiful, and capable.",
+      "You make the world a better place just by being you.",
+      "You are enough, just as you are.",
+      "Your presence is a gift to those around you.",
+      "You deserve all the good things coming your way.",
+      "You are unstoppable when you believe in yourself.",
+      "You radiate beauty, confidence, and grace.",
+      "You are worthy of all the love and happiness in the world.",
+      "Every day, you become an even better version of yourself.",
+      "Your heart is pure, your mind is bright, and your soul is kind.",
+      "You inspire everyone who has the privilege of knowing you.",
+      "You have the power to turn any situation around.",
+      "You are capable of achieving anything you set your mind to.",
+      "You are a blessing to this world.",
+      "You deserve peace, love, and endless joy.",
+      "Your dreams are valid, and you’re worthy of chasing them.",
+      "You handle challenges with strength and grace.",
+      "You are beautiful inside and out.",
+      "You are growing, glowing, and thriving every day.",
+      "You bring warmth and happiness wherever you go.",
+      "You are magic in human form.",
+      "You deserve all the kindness you give to others.",
+      "Your presence makes everything better.",
+      "You are brave for showing up every day.",
+      "You are the definition of grace and elegance.",
+      "Your love has the power to heal hearts.",
+      "You are doing your best, and that is enough.",
+      "You have a heart full of gold and a soul full of fire.",
+      "You are deeply loved, even on days you don’t feel it.",
+      "You have come so far, and you should be proud.",
+      "You are perfectly imperfect — and that’s beautiful.",
+      "You are an incredible person with endless potential.",
+      "You are the calm in the chaos.",
+      "You light up every room you walk into.",
+      "You are stronger than you realize.",
+      "You deserve good things, and they’re coming your way.",
+      "You make love look effortless.",
+      "You are resilient, radiant, and remarkable.",
+      "Your kindness is your superpower.",
+      "You are loved more than you know.",
+      "You make life more beautiful simply by existing.",
+      "You have such a wonderful way of making people feel special.",
+      "You are a masterpiece in progress.",
+      "You are powerful beyond measure.",
+      "You are peace, love, and light all in one.",
+      "You are everything someone could ever hope for.",
+      "You make my world brighter just by being you."
+    ];
+
+    function newAffirmation() {
+      const randomIndex = Math.floor(Math.random() * affirmations.length);
+      const affirmationElement = document.getElementById("affirmation");
+      affirmationElement.style.opacity = 0;
+      setTimeout(() => {
+        affirmationElement.textContent = affirmations[randomIndex];
+        affirmationElement.style.opacity = 1;
+      }, 200);
+    }
+
+    // Show a random affirmation when the page loads
+    newAffirmation();
+  </script>
+</body>
+</html>
