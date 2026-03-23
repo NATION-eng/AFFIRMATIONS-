@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="A beautifully designed affirmations app with daily inspiration, favorites, and mindful reflection prompts.">
+  <title>Affirmation Studio</title>
+  <style>
+    :root {
+      --bg: #f7efe4;
+      --bg-accent: #f2d6ba;
+      --surface: rgba(255, 248, 239, 0.8);
+      --surface-strong: #fffaf3;
+      --text: #2c2118;
+      --muted: #6e5b4e;
+      --primary: #c85c3a;
+      --primary-strong: #ab4526;
+      --secondary: #2e6f68;
+      --secondary-soft: #d7ebe8;
+      --gold: #f3bf62;
+      --shadow: 0 24px 70px rgba(86, 50, 29, 0.16);
+      --radius-xl: 32px;
+      --radius-lg: 22px;
+      --radius-md: 16px;
+      --transition: 220ms ease;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: Georgia, "Times New Roman", serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(243, 191, 98, 0.36), transparent 30%),
+        radial-gradient(circle at bottom right, rgba(46, 111, 104, 0.2), transparent 24%),
+        linear-gradient(135deg, #f8efe5 0%, #f2dfcf 45%, #eadfca 100%);
+      overflow-x: hidden;
+    }
+
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      inset: auto;
+      border-radius: 50%;
+      pointer-events: none;
+      filter: blur(10px);
+      opacity: 0.55;
+      z-index: 0;
+    }
+
+    body::before {
+      width: 280px;
+      height: 280px;
+      top: 42px;
+      right: -60px;
+      background: rgba(200, 92, 58, 0.16);
+    }
+
+    body::after {
+      width: 220px;
+      height: 220px;
+      left: -70px;
+      bottom: 60px;
+      background: rgba(46, 111, 104, 0.16);
+    }
+
+    .page {
+      position: relative;
+      z-index: 1;
+      width: min(880px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 24px 0 40px;
+    }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      backdrop-filter: blur(18px);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius-xl);
+    }
+
+    .hero-card {
+      padding: 28px;
+      position: relative;
+      overflow: hidden;
+      isolation: isolate;
+    }
+
+    .hero-card::before {
+      content: "";
+      position: absolute;
+      inset: auto -80px -100px auto;
+      width: 260px;
+      height: 260px;
+      background: radial-gradient(circle, rgba(243, 191, 98, 0.34), transparent 68%);
+      z-index: -1;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.7);
+      color: var(--secondary);
+      font-size: 0.85rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+
+    h1 {
+      font-size: clamp(2.4rem, 5vw, 3.8rem);
+      line-height: 0.95;
+      margin-bottom: 12px;
+    }
+
+    .hero-copy {
+      font-family: "Trebuchet MS", Arial, sans-serif;
+      color: var(--muted);
+      line-height: 1.65;
+      margin-bottom: 20px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .topbar-note {
+      font-family: "Trebuchet MS", Arial, sans-serif;
+      color: var(--muted);
+      line-height: 1.6;
+      max-width: 48ch;
+    }
+
+    .nav-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .chip,
+    button {
+      border: none;
+      cursor: pointer;
+      transition: transform var(--transition), background var(--transition), color var(--transition), box-shadow var(--transition), border-color var(--transition);
+    }
+
+    .chip {
+      border: 1px solid rgba(110, 91, 78, 0.18);
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.75);
+      color: var(--muted);
+      font-family: "Trebuchet MS", Arial, sans-serif;
+      font-size: 0.95rem;
+    }
+
+    .chip:hover,
+    .chip.active {
+      background: var(--text);
+      color: #fff8ef;
+      transform: translateY(-1px);
+    }
+
+    .nav-link {
+      text-decoration: none;
+    }
+
+    .focus-stage {
+      padding: 18px;
+      margin-top: 18px;
+    }
+
+    .affirmation-card {
+      position: relative;
+      padding: 34px;
+      border-radius: var(--radius-lg);
+      background:
+        linear-gradient(145deg, rgba(255, 251, 245, 0.96), rgba(251, 238, 220, 0.92)),
+        #fffdf9;
+      border: 1px solid rgba(110, 91, 78, 0.12);
+      overflow: hidden;
+      min-height: 430px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .affirmation-card::after {
+      content: "";
+      position: absolute;
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      right: -70px;
+      top: -80px;
+      background: radial-gradient(circle, rgba(243, 191, 98, 0.3), transparent 70%);
+    }
+
+    .label {
+      font-family: "Trebuchet MS", Arial, sans-serif;
+      color: var(--secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 0.8rem;
+    }
+
+    .affirmation {
+      position: relative;
+      font-size: clamp(2.2rem, 4.6vw, 4.2rem);
+      line-height: 1.08;
+      margin: 18px 0 18px;
+      max-width: 12ch;
+      transition: opacity 200ms ease, transform 200ms ease;
+    }
+
+    .affirmation.fade {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 18px;
+      font-family: "Trebuchet MS", Arial, sans-serif;
+      color: var(--muted);
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 7px 12px;
+      background: rgba(46, 111, 104, 0.1);
+      color: var(--secondary);
+      font-size: 0.9rem;
+    }
+
+    .prompt {
+      font-family: "Trebuchet MS", Arial, sans-serif;
+      color: var(--muted);
+      line-height: 1.7;
+      max-width: 52ch;
+      margin-bottom: 22px;
+    }
+
+    .action-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .btn {
+      padding: 13px 18px;
+      border-radius: 999px;
+      font-family: "Trebuchet MS", Arial, sans-serif;
+      font-size: 0.96rem;
+      font-weight: 700;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff7f3;
+      box-shadow: 0 12px 24px rgba(200, 92, 58, 0.26);
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-strong);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.85);
+      color: var(--text);
+      border: 1px solid rgba(110, 91, 78, 0.18);
+    }
+
+    .btn-ghost {
+      background: rgba(46, 111, 104, 0.1);
+      color: var(--secondary);
+    }
+
+    .side-panel {
+      padding: 24px;
+    }
+
+    .panel-title {
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+    }
+
+    .subtle {
+      font-family: "Trebuchet MS", Arial, sans-serif;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .history-list,
+    .favorites-list {
+      list-style: none;
+      display: grid;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .history-item,
+    .favorite-item {
+      padding: 14px 15px;
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.66);
+      border: 1px solid rgba(110, 91, 78, 0.12);
+    }
+
+    .item-tag {
+      display: inline-block;
+      margin-bottom: 6px;
+      font-family: "Trebuchet MS", Arial, sans-serif;
+      font-size: 0.75rem;
+      color: var(--secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .item-text {
+      line-height: 1.45;
+    }
+
+    .empty-state {
+      margin-top: 14px;
+      padding: 18px;
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.56);
+      font-family: "Trebuchet MS", Arial, sans-serif;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .quote-mark {
+      position: absolute;
+      top: 24px;
+      right: 26px;
+      font-size: 4rem;
+      line-height: 1;
+      color: rgba(200, 92, 58, 0.14);
+    }
+
+    .status {
+      min-height: 24px;
+      margin-top: 12px;
+      font-family: "Trebuchet MS", Arial, sans-serif;
+      color: var(--secondary);
+    }
+
+    .daily-note {
+      margin-top: 16px;
+      padding: 16px;
+      border-radius: var(--radius-md);
+      background: rgba(243, 191, 98, 0.18);
+      font-family: "Trebuchet MS", Arial, sans-serif;
+      line-height: 1.6;
+      color: #704d11;
+    }
+
+    .utility-panels {
+      display: grid;
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    .stat {
+      padding: 16px;
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.56);
+    }
+
+    .stat-value {
+      display: block;
+      font-size: 1.55rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .stat-label {
+      font-family: "Trebuchet MS", Arial, sans-serif;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .panel-toggle {
+      width: 100%;
+      text-align: left;
+      background: transparent;
+      color: var(--text);
+      font-size: 1.05rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0;
+    }
+
+    .panel-toggle span:last-child {
+      font-family: "Trebuchet MS", Arial, sans-serif;
+      color: var(--muted);
+      font-size: 0.92rem;
+      font-weight: 400;
+    }
+
+    .panel-body {
+      margin-top: 16px;
+    }
+
+    .footer {
+      margin-top: 22px;
+      text-align: center;
+      font-family: "Trebuchet MS", Arial, sans-serif;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    @media (max-width: 960px) {
+      h1,
+      .affirmation {
+        max-width: none;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .page {
+        width: min(100% - 20px, 1150px);
+        padding-top: 18px;
+      }
+
+      .hero-card,
+      .side-panel,
+      .focus-stage,
+      .affirmation-card {
+        padding: 20px;
+      }
+
+      .topbar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .summary-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .action-row {
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="panel hero-card">
+      <div class="topbar">
+        <div>
+          <div class="eyebrow">Daily reset</div>
+          <h1>Affirmation Studio</h1>
+          <p class="hero-copy">A quieter first screen with the affirmation at the center. Use the links below whenever you want to explore more.</p>
+        </div>
+        <div class="nav-row">
+          <a class="chip nav-link" href="#categoriesPanel">Categories</a>
+          <a class="chip nav-link" href="#favoritesPanel">Favorites</a>
+          <a class="chip nav-link" href="#historyPanel">History</a>
+        </div>
+      </div>
+
+      <section class="panel focus-stage">
+        <article class="affirmation-card">
+          <div class="quote-mark">"</div>
+          <span class="label">Featured message</span>
+          <h2 class="affirmation" id="affirmationText"></h2>
+          <div class="meta-row">
+            <span class="pill" id="categoryPill"></span>
+            <span class="pill" id="tonePill"></span>
+          </div>
+          <p class="prompt" id="reflectionPrompt"></p>
+          <div class="action-row">
+            <button class="btn btn-primary" id="refreshButton" type="button">New affirmation</button>
+            <button class="btn btn-secondary" id="favoriteButton" type="button">Save to favorites</button>
+            <button class="btn btn-ghost" id="copyButton" type="button">Copy text</button>
+          </div>
+          <div class="status" id="statusText" aria-live="polite"></div>
+        </article>
+      </section>
+
+      <div class="daily-note" id="dailyNote"></div>
+    </section>
+
+    <section class="utility-panels">
+      <details class="panel side-panel" id="categoriesPanel">
+        <summary class="panel-toggle">
+          <span>Categories</span>
+          <span>Choose a mood</span>
+        </summary>
+        <div class="panel-body">
+          <p class="topbar-note">Pick a category whenever you want the message to lean toward calm, gratitude, love, growth, or self-worth.</p>
+          <div class="nav-row" id="categoryChips"></div>
+        </div>
+      </details>
+
+      <details class="panel side-panel" id="favoritesPanel">
+        <summary class="panel-toggle">
+          <span>Favorites</span>
+          <span>Saved on this device</span>
+        </summary>
+        <div class="panel-body">
+          <ul class="favorites-list" id="favoritesList"></ul>
+          <div class="empty-state" id="favoritesEmpty">No favorites yet. Save a line that feels worth keeping.</div>
+        </div>
+      </details>
+
+      <details class="panel side-panel" id="historyPanel">
+        <summary class="panel-toggle">
+          <span>Recent history</span>
+          <span>Your last few reflections</span>
+        </summary>
+        <div class="panel-body">
+          <ul class="history-list" id="historyList"></ul>
+          <div class="empty-state" id="historyEmpty">Your recent affirmations will appear here.</div>
+        </div>
+      </details>
+
+      <section class="panel side-panel">
+        <h2 class="panel-title">Overview</h2>
+        <p class="subtle">The extras are still here, but now they stay out of the way until someone wants them.</p>
+        <div class="summary-grid">
+          <div class="stat">
+            <span class="stat-value" id="totalCount">0</span>
+            <span class="stat-label">Curated affirmations</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value" id="favoriteCount">0</span>
+            <span class="stat-label">Saved favorites</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value" id="historyCount">0</span>
+            <span class="stat-label">Recent reflections</span>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <p class="footer">Open this file in any browser. No setup required.</p>
+  </div>
+
+  <script>
+    const STORAGE_KEYS = {
+      favorites: "affirmation-studio-favorites",
+      history: "affirmation-studio-history",
+      category: "affirmation-studio-category"
+    };
+
+    const categories = [
+      { id: "all", label: "All moods" },
+      { id: "self-worth", label: "Self-worth" },
+      { id: "love", label: "Love" },
+      { id: "calm", label: "Calm" },
+      { id: "gratitude", label: "Gratitude" },
+      { id: "growth", label: "Growth" }
+    ];
+
+    const reflections = {
+      "self-worth": "Where have you already shown more strength than you usually give yourself credit for?",
+      "love": "Who or what feels deeply worth caring for in this season of your life?",
+      "calm": "What would it look like to make the next hour softer and less rushed?",
+      "gratitude": "What is already good here, even if it is small or easy to miss?",
+      "growth": "What challenge is quietly teaching you who you are becoming?",
+      "all": "Let the line sit with you for a moment, then notice what feeling it changes."
+    };
+
+    const coreAffirmations = [
+      { text: "I am allowed to take up space with confidence and grace.", category: "self-worth", tone: "Grounding" },
+      { text: "My voice matters, even when I speak softly.", category: "self-worth", tone: "Steady" },
+      { text: "I do not need to earn rest, kindness, or belonging.", category: "self-worth", tone: "Gentle" },
+      { text: "I carry worth that does not shrink on difficult days.", category: "self-worth", tone: "Reassuring" },
+      { text: "I can trust the person I am becoming.", category: "growth", tone: "Forward-looking" },
+      { text: "Small steps still count as powerful progress.", category: "growth", tone: "Motivating" },
+      { text: "I am growing even in seasons that feel slow.", category: "growth", tone: "Patient" },
+      { text: "Each challenge is teaching me how capable I really am.", category: "growth", tone: "Encouraging" },
+      { text: "I can meet this moment without abandoning myself.", category: "growth", tone: "Resilient" },
+      { text: "Peace can begin with one slower breath.", category: "calm", tone: "Breath-led" },
+      { text: "I release what is urgent enough to steal my center.", category: "calm", tone: "Quiet" },
+      { text: "I am safe to soften, pause, and begin again.", category: "calm", tone: "Soothing" },
+      { text: "Calm is something I can practice, not something I have to wait for.", category: "calm", tone: "Mindful" },
+      { text: "There is more holding me up than I can see right now.", category: "calm", tone: "Comforting" },
+      { text: "Love around me is real, even when life feels loud.", category: "love", tone: "Warm" },
+      { text: "I am worthy of love that feels honest, safe, and steady.", category: "love", tone: "Tender" },
+      { text: "My heart can stay open without losing its wisdom.", category: "love", tone: "Open-hearted" },
+      { text: "The right people will not require me to become smaller.", category: "love", tone: "Protective" },
+      { text: "I am grateful for the ordinary moments that quietly shape a good life.", category: "gratitude", tone: "Reflective" },
+      { text: "There is beauty in what is already here.", category: "gratitude", tone: "Simple" },
+      { text: "Today offers enough to notice, savor, and appreciate.", category: "gratitude", tone: "Present" },
+      { text: "Even now, there is something worth saying thank you for.", category: "gratitude", tone: "Bright" },
+      { text: "I can be both a work in progress and deeply enough today.", category: "self-worth", tone: "Balanced" },
+      { text: "My tenderness is not weakness; it is part of my strength.", category: "self-worth", tone: "Affirming" },
+      { text: "I can love fully and still honor my boundaries.", category: "love", tone: "Grounded" },
+      { text: "I am learning to create peace from the inside out.", category: "calm", tone: "Centered" },
+      { text: "Every season of growth deserves compassion, not punishment.", category: "growth", tone: "Gentle" },
+      { text: "Gratitude makes room for joy without pretending life is perfect.", category: "gratitude", tone: "Honest" }
+    ];
+
+    const generatedParts = {
+      "self-worth": {
+        tones: ["Grounding", "Steady", "Gentle", "Reassuring", "Affirming", "Centered"],
+        openings: [
+          "I am worthy of",
+          "I welcome",
+          "I trust",
+          "I honor",
+          "I carry",
+          "I choose",
+          "I deserve",
+          "I protect"
+        ],
+        middles: [
+          "my own voice",
+          "the space I need",
+          "the truth of who I am",
+          "my softness and my strength",
+          "the good already inside me",
+          "my boundaries and my needs",
+          "the value I bring",
+          "the confidence growing in me"
+        ],
+        endings: [
+          "with calm certainty.",
+          "without apology.",
+          "even on uncertain days.",
+          "as I am, right now.",
+          "with quiet confidence.",
+          "and let it be enough.",
+          "without making myself smaller.",
+          "because my presence matters."
+        ]
+      },
+      "love": {
+        tones: ["Warm", "Tender", "Open-hearted", "Grounded", "Protective", "Soft"],
+        openings: [
+          "I welcome",
+          "I am open to",
+          "I trust",
+          "I deserve",
+          "I create",
+          "I protect",
+          "I recognize",
+          "I receive"
+        ],
+        middles: [
+          "love that feels safe",
+          "care that is honest",
+          "connections that honor me",
+          "relationships with mutual respect",
+          "the tenderness already in my life",
+          "support that feels steady",
+          "the warmth that surrounds me",
+          "love that does not ask me to shrink"
+        ],
+        endings: [
+          "with an open heart.",
+          "and let it teach me peace.",
+          "without losing myself.",
+          "with trust and wisdom.",
+          "one honest moment at a time.",
+          "because I am worthy of it.",
+          "and make room for joy.",
+          "while honoring my boundaries."
+        ]
+      },
+      "calm": {
+        tones: ["Breath-led", "Quiet", "Soothing", "Mindful", "Comforting", "Still"],
+        openings: [
+          "I choose",
+          "I return to",
+          "I practice",
+          "I welcome",
+          "I breathe into",
+          "I make room for",
+          "I create",
+          "I trust"
+        ],
+        middles: [
+          "a slower pace",
+          "the calm within me",
+          "a gentler rhythm",
+          "this present moment",
+          "the breath that steadies me",
+          "peace in small steps",
+          "softness in the middle of pressure",
+          "rest that restores me"
+        ],
+        endings: [
+          "right here and now.",
+          "one breath at a time.",
+          "without rushing my healing.",
+          "and let my body exhale.",
+          "even if the world feels loud.",
+          "because peace can be practiced.",
+          "with patience and care.",
+          "and release what I cannot carry."
+        ]
+      },
+      "gratitude": {
+        tones: ["Reflective", "Simple", "Present", "Bright", "Honest", "Warm"],
+        openings: [
+          "I notice",
+          "I appreciate",
+          "I give thanks for",
+          "I make room for",
+          "I welcome",
+          "I honor",
+          "I celebrate",
+          "I cherish"
+        ],
+        middles: [
+          "the good already here",
+          "small moments of beauty",
+          "the support around me",
+          "the lessons in this season",
+          "the people who care for me",
+          "the quiet gifts of today",
+          "the progress I have made",
+          "the ordinary moments that hold meaning"
+        ],
+        endings: [
+          "with a full heart.",
+          "even when life is imperfect.",
+          "and let it deepen my joy.",
+          "without needing more to begin.",
+          "because enough is already here.",
+          "and allow myself to savor it.",
+          "with humility and delight.",
+          "one mindful breath at a time."
+        ]
+      },
+      "growth": {
+        tones: ["Forward-looking", "Motivating", "Patient", "Encouraging", "Resilient", "Gentle"],
+        openings: [
+          "I am becoming",
+          "I trust",
+          "I welcome",
+          "I grow through",
+          "I learn from",
+          "I strengthen",
+          "I build",
+          "I continue"
+        ],
+        middles: [
+          "the person I am meant to be",
+          "each small step forward",
+          "this season of change",
+          "the lessons inside challenge",
+          "my resilience every day",
+          "a future shaped by intention",
+          "new courage within me",
+          "progress that happens quietly"
+        ],
+        endings: [
+          "with patience and trust.",
+          "even when the path is slow.",
+          "and let growth unfold naturally.",
+          "without demanding perfection.",
+          "one brave choice at a time.",
+          "because I am capable of more.",
+          "and honor how far I have come.",
+          "while staying kind to myself."
+        ]
+      }
+    };
+
+    function generateAffirmations() {
+      const generated = [];
+
+      Object.entries(generatedParts).forEach(([category, parts]) => {
+        parts.openings.forEach((opening, openingIndex) => {
+          parts.middles.forEach((middle, middleIndex) => {
+            parts.endings.forEach((ending, endingIndex) => {
+              const tone = parts.tones[(openingIndex + middleIndex + endingIndex) % parts.tones.length];
+              generated.push({
+                text: `${opening} ${middle} ${ending}`,
+                category,
+                tone
+              });
+            });
+          });
+        });
+      });
+
+      return generated;
+    }
+
+    const affirmations = [...coreAffirmations, ...generateAffirmations()];
+
+    const elements = {
+      categoryChips: document.getElementById("categoryChips"),
+      affirmationText: document.getElementById("affirmationText"),
+      categoryPill: document.getElementById("categoryPill"),
+      tonePill: document.getElementById("tonePill"),
+      reflectionPrompt: document.getElementById("reflectionPrompt"),
+      favoriteButton: document.getElementById("favoriteButton"),
+      refreshButton: document.getElementById("refreshButton"),
+      copyButton: document.getElementById("copyButton"),
+      favoritesList: document.getElementById("favoritesList"),
+      historyList: document.getElementById("historyList"),
+      favoritesEmpty: document.getElementById("favoritesEmpty"),
+      historyEmpty: document.getElementById("historyEmpty"),
+      statusText: document.getElementById("statusText"),
+      totalCount: document.getElementById("totalCount"),
+      favoriteCount: document.getElementById("favoriteCount"),
+      historyCount: document.getElementById("historyCount"),
+      dailyNote: document.getElementById("dailyNote")
+    };
+
+    const AUTO_ROTATE_MS = 9000;
+
+    let selectedCategory = loadValue(STORAGE_KEYS.category, "all");
+    let currentAffirmation = null;
+    let favorites = loadValue(STORAGE_KEYS.favorites, []);
+    let history = loadValue(STORAGE_KEYS.history, []);
+    let autoRotateTimer = null;
+
+    function loadValue(key, fallback) {
+      try {
+        const raw = localStorage.getItem(key);
+        return raw ? JSON.parse(raw) : fallback;
+      } catch (error) {
+        return fallback;
+      }
+    }
+
+    function saveValue(key, value) {
+      localStorage.setItem(key, JSON.stringify(value));
+    }
+
+    function seededIndex(length) {
+      const dateKey = new Date().toISOString().slice(0, 10);
+      const seedSource = `${dateKey}-${length}`;
+      let hash = 0;
+
+      for (let index = 0; index < seedSource.length; index += 1) {
+        hash = (hash << 5) - hash + seedSource.charCodeAt(index);
+        hash |= 0;
+      }
+
+      return Math.abs(hash) % length;
+    }
+
+    function getPool() {
+      return selectedCategory === "all"
+        ? affirmations
+        : affirmations.filter((item) => item.category === selectedCategory);
+    }
+
+    function getDailyAffirmation() {
+      const pool = getPool();
+      return pool[seededIndex(pool.length)];
+    }
+
+    function categoryLabel(id) {
+      const found = categories.find((item) => item.id === id);
+      return found ? found.label : "All moods";
+    }
+
+    function renderChips() {
+      elements.categoryChips.innerHTML = "";
+
+      categories.forEach((category) => {
+        const button = document.createElement("button");
+        button.className = `chip${category.id === selectedCategory ? " active" : ""}`;
+        button.type = "button";
+        button.textContent = category.label;
+        button.addEventListener("click", () => {
+          selectedCategory = category.id;
+          saveValue(STORAGE_KEYS.category, selectedCategory);
+          renderChips();
+          showAffirmation(getDailyAffirmation(), true);
+          updateDailyNote();
+        });
+        elements.categoryChips.appendChild(button);
+      });
+    }
+
+    function setStatus(message) {
+      elements.statusText.textContent = message;
+    }
+
+    function pushHistory(item) {
+      history = [
+        item,
+        ...history.filter((entry) => entry.text !== item.text)
+      ].slice(0, 5);
+
+      saveValue(STORAGE_KEYS.history, history);
+      renderHistory();
+      updateCounts();
+    }
+
+    function toggleFavorite() {
+      if (!currentAffirmation) {
+        return;
+      }
+
+      const exists = favorites.some((item) => item.text === currentAffirmation.text);
+
+      if (exists) {
+        favorites = favorites.filter((item) => item.text !== currentAffirmation.text);
+        setStatus("Removed from favorites.");
+      } else {
+        favorites = [currentAffirmation, ...favorites].slice(0, 8);
+        setStatus("Saved to favorites.");
+      }
+
+      saveValue(STORAGE_KEYS.favorites, favorites);
+      renderFavorites();
+      syncFavoriteButton();
+      updateCounts();
+    }
+
+    function syncFavoriteButton() {
+      const isFavorite = currentAffirmation && favorites.some((item) => item.text === currentAffirmation.text);
+      elements.favoriteButton.textContent = isFavorite ? "Remove favorite" : "Save to favorites";
+    }
+
+    function renderFavorites() {
+      elements.favoritesList.innerHTML = "";
+
+      favorites.forEach((item) => {
+        const li = document.createElement("li");
+        li.className = "favorite-item";
+        li.innerHTML = `
+          <span class="item-tag">${categoryLabel(item.category)}</span>
+          <p class="item-text">${item.text}</p>
+        `;
+        elements.favoritesList.appendChild(li);
+      });
+
+      elements.favoritesEmpty.style.display = favorites.length ? "none" : "block";
+    }
+
+    function renderHistory() {
+      elements.historyList.innerHTML = "";
+
+      history.forEach((item) => {
+        const li = document.createElement("li");
+        li.className = "history-item";
+        li.innerHTML = `
+          <span class="item-tag">${categoryLabel(item.category)}</span>
+          <p class="item-text">${item.text}</p>
+        `;
+        elements.historyList.appendChild(li);
+      });
+
+      elements.historyEmpty.style.display = history.length ? "none" : "block";
+    }
+
+    function updateCounts() {
+      elements.totalCount.textContent = affirmations.length;
+      elements.favoriteCount.textContent = favorites.length;
+      elements.historyCount.textContent = history.length;
+    }
+
+    function updateDailyNote() {
+      const daily = getDailyAffirmation();
+      elements.dailyNote.textContent = `Daily anchor: ${daily.text}`;
+    }
+
+    function showAffirmation(item, addToHistory = true) {
+      currentAffirmation = item;
+      elements.affirmationText.classList.add("fade");
+
+      window.setTimeout(() => {
+        elements.affirmationText.textContent = item.text;
+        elements.categoryPill.textContent = categoryLabel(item.category);
+        elements.tonePill.textContent = `${item.tone} tone`;
+        elements.reflectionPrompt.textContent = reflections[item.category] || reflections.all;
+        elements.affirmationText.classList.remove("fade");
+        syncFavoriteButton();
+      }, 180);
+
+      if (addToHistory) {
+        pushHistory(item);
+      }
+    }
+
+    function nextAffirmation() {
+      const pool = getPool();
+
+      if (pool.length === 1) {
+        showAffirmation(pool[0]);
+        return;
+      }
+
+      let next = pool[Math.floor(Math.random() * pool.length)];
+
+      while (currentAffirmation && next.text === currentAffirmation.text) {
+        next = pool[Math.floor(Math.random() * pool.length)];
+      }
+
+      showAffirmation(next);
+      setStatus("Fresh affirmation loaded.");
+    }
+
+    function restartAutoRotate() {
+      if (autoRotateTimer) {
+        window.clearInterval(autoRotateTimer);
+      }
+
+      autoRotateTimer = window.setInterval(() => {
+        nextAffirmation();
+      }, AUTO_ROTATE_MS);
+    }
+
+    async function copyCurrentAffirmation() {
+      if (!currentAffirmation) {
+        return;
+      }
+
+      const copyText = `${currentAffirmation.text} (${categoryLabel(currentAffirmation.category)})`;
+
+      try {
+        await navigator.clipboard.writeText(copyText);
+        setStatus("Affirmation copied to clipboard.");
+      } catch (error) {
+        setStatus("Clipboard access was unavailable.");
+      }
+    }
+
+    elements.refreshButton.addEventListener("click", () => {
+      nextAffirmation();
+      restartAutoRotate();
+    });
+
+    elements.favoriteButton.addEventListener("click", () => {
+      toggleFavorite();
+      restartAutoRotate();
+    });
+
+    elements.copyButton.addEventListener("click", () => {
+      copyCurrentAffirmation();
+      restartAutoRotate();
+    });
+
+    renderChips();
+    renderFavorites();
+    renderHistory();
+    updateCounts();
+    updateDailyNote();
+    showAffirmation(getDailyAffirmation(), false);
+    restartAutoRotate();
+  </script>
+</body>
+</html>

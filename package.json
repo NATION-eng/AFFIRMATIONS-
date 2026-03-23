@@ -1,0 +1,9 @@
+{
+  "name": "affirmation-studio",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A polished single-page affirmations app with a tiny local dev server.",
+  "scripts": {
+    "dev": "node server.js"
+  }
+}
