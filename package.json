@@ -1,9 +1,13 @@
 {
   "name": "affirmation-studio",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
-  "description": "A polished single-page affirmations app with a tiny local dev server.",
+  "description": "A premium single-page affirmations app with dark mode, journal, breathing guide, favorites, and streaks.",
   "scripts": {
-    "dev": "node server.js"
+    "dev":   "node server.js",
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=14"
   }
 }

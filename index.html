@@ -1,890 +1,983 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="A beautifully designed affirmations app with daily inspiration, favorites, and mindful reflection prompts.">
+  <meta name="description" content="Affirmation Studio — daily affirmations with mood tracking, breathing exercises, favorites, and a personal journal. Start your day with intention.">
+  <meta name="theme-color" content="#f7efe4">
   <title>Affirmation Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
+    /* =================== DESIGN TOKENS =================== */
     :root {
       --bg: #f7efe4;
-      --bg-accent: #f2d6ba;
-      --surface: rgba(255, 248, 239, 0.8);
-      --surface-strong: #fffaf3;
+      --bg2: #f0e3d0;
+      --surface: rgba(255, 249, 242, 0.82);
+      --surface-solid: #fffaf3;
+      --surface-hover: rgba(255, 249, 242, 0.97);
+      --border: rgba(110, 91, 78, 0.15);
+      --border-strong: rgba(110, 91, 78, 0.28);
       --text: #2c2118;
+      --text-soft: #4a3728;
       --muted: #6e5b4e;
+      --muted-light: #9e8a7e;
       --primary: #c85c3a;
       --primary-strong: #ab4526;
+      --primary-glow: rgba(200, 92, 58, 0.22);
       --secondary: #2e6f68;
-      --secondary-soft: #d7ebe8;
-      --gold: #f3bf62;
-      --shadow: 0 24px 70px rgba(86, 50, 29, 0.16);
-      --radius-xl: 32px;
-      --radius-lg: 22px;
-      --radius-md: 16px;
-      --transition: 220ms ease;
+      --secondary-soft: rgba(46, 111, 104, 0.12);
+      --secondary-glow: rgba(46, 111, 104, 0.2);
+      --gold: #c98a18;
+      --gold-raw: #e8a83e;
+      --gold-soft: rgba(232, 168, 62, 0.16);
+      --shadow-sm: 0 4px 16px rgba(86, 50, 29, 0.08);
+      --shadow: 0 12px 40px rgba(86, 50, 29, 0.13);
+      --shadow-lg: 0 24px 72px rgba(86, 50, 29, 0.17);
+      --radius-xl: 28px;
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --radius-sm: 9px;
+      --transition: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-slow: 420ms cubic-bezier(0.4, 0, 0.2, 1);
+      --font-display: "Playfair Display", Georgia, serif;
+      --font-body: "Inter", "Trebuchet MS", Arial, sans-serif;
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
+    [data-theme="dark"] {
+      --bg: #18110d;
+      --bg2: #221713;
+      --surface: rgba(40, 26, 18, 0.88);
+      --surface-solid: #2c1c13;
+      --surface-hover: rgba(52, 34, 24, 0.96);
+      --border: rgba(255, 215, 180, 0.1);
+      --border-strong: rgba(255, 215, 180, 0.2);
+      --text: #f4e8d6;
+      --text-soft: #d0bcaa;
+      --muted: #ab9080;
+      --muted-light: #7a6050;
+      --primary: #e06840;
+      --primary-strong: #c85c3a;
+      --primary-glow: rgba(224, 104, 64, 0.28);
+      --secondary: #4fa898;
+      --secondary-soft: rgba(79, 168, 152, 0.14);
+      --secondary-glow: rgba(79, 168, 152, 0.22);
+      --gold: #f0b84a;
+      --gold-raw: #f0b84a;
+      --gold-soft: rgba(240, 184, 74, 0.16);
+      --shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.35);
+      --shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+      --shadow-lg: 0 24px 72px rgba(0, 0, 0, 0.55);
     }
 
+    /* =================== RESET =================== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
     body {
       min-height: 100vh;
-      font-family: Georgia, "Times New Roman", serif;
+      font-family: var(--font-body);
       color: var(--text);
-      background:
-        radial-gradient(circle at top left, rgba(243, 191, 98, 0.36), transparent 30%),
-        radial-gradient(circle at bottom right, rgba(46, 111, 104, 0.2), transparent 24%),
-        linear-gradient(135deg, #f8efe5 0%, #f2dfcf 45%, #eadfca 100%);
+      background-color: var(--bg);
       overflow-x: hidden;
+      transition: background-color var(--transition-slow), color var(--transition-slow);
     }
 
-    body::before,
-    body::after {
-      content: "";
-      position: fixed;
-      inset: auto;
+    /* =================== ANIMATED BACKGROUND =================== */
+    .bg-canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+    .orb {
+      position: absolute;
       border-radius: 50%;
-      pointer-events: none;
-      filter: blur(10px);
-      opacity: 0.55;
-      z-index: 0;
+      filter: blur(70px);
+      animation: orbFloat 22s ease-in-out infinite;
+    }
+    .orb-1 {
+      width: 440px; height: 440px;
+      top: -110px; right: -90px;
+      background: radial-gradient(circle, rgba(200, 92, 58, 0.2), transparent 68%);
+      animation-duration: 22s; opacity: 0.75;
+    }
+    .orb-2 {
+      width: 360px; height: 360px;
+      bottom: -80px; left: -90px;
+      background: radial-gradient(circle, rgba(46, 111, 104, 0.18), transparent 68%);
+      animation-delay: -9s; animation-duration: 26s; opacity: 0.6;
+    }
+    .orb-3 {
+      width: 280px; height: 280px;
+      top: 44%; left: 28%;
+      background: radial-gradient(circle, rgba(232, 168, 62, 0.16), transparent 68%);
+      animation-delay: -15s; animation-duration: 18s; opacity: 0.5;
+    }
+    [data-theme="dark"] .orb-1 { opacity: 0.35; }
+    [data-theme="dark"] .orb-2 { opacity: 0.3; }
+    [data-theme="dark"] .orb-3 { opacity: 0.25; }
+    @keyframes orbFloat {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33%       { transform: translate(22px, -32px) scale(1.07); }
+      66%       { transform: translate(-16px, 22px) scale(0.93); }
     }
 
-    body::before {
-      width: 280px;
-      height: 280px;
-      top: 42px;
-      right: -60px;
-      background: rgba(200, 92, 58, 0.16);
-    }
-
-    body::after {
-      width: 220px;
-      height: 220px;
-      left: -70px;
-      bottom: 60px;
-      background: rgba(46, 111, 104, 0.16);
-    }
-
+    /* =================== LAYOUT =================== */
     .page {
-      position: relative;
-      z-index: 1;
-      width: min(880px, calc(100% - 32px));
+      position: relative; z-index: 1;
+      width: min(960px, calc(100% - 32px));
       margin: 0 auto;
-      padding: 24px 0 40px;
+      padding: 18px 0 48px;
     }
+    .spacer { height: 16px; }
 
+    /* =================== GLASS PANEL =================== */
     .panel {
       background: var(--surface);
-      border: 1px solid rgba(255, 255, 255, 0.5);
-      backdrop-filter: blur(18px);
+      border: 1px solid var(--border);
+      backdrop-filter: blur(22px) saturate(1.5);
+      -webkit-backdrop-filter: blur(22px) saturate(1.5);
       box-shadow: var(--shadow);
       border-radius: var(--radius-xl);
+      transition: box-shadow var(--transition), background var(--transition-slow), border-color var(--transition-slow);
     }
+    .panel:hover { box-shadow: var(--shadow-lg); }
 
-    .hero-card {
-      padding: 28px;
-      position: relative;
-      overflow: hidden;
-      isolation: isolate;
+    /* =================== HEADER =================== */
+    .app-header {
+      display: flex; align-items: center;
+      justify-content: space-between; gap: 16px;
+      padding: 16px 22px; margin-bottom: 14px;
     }
-
-    .hero-card::before {
-      content: "";
-      position: absolute;
-      inset: auto -80px -100px auto;
-      width: 260px;
-      height: 260px;
-      background: radial-gradient(circle, rgba(243, 191, 98, 0.34), transparent 68%);
-      z-index: -1;
+    .brand { display: flex; align-items: center; gap: 13px; }
+    .brand-icon {
+      width: 44px; height: 44px; border-radius: 14px;
+      background: linear-gradient(135deg, var(--primary), var(--gold-raw));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem; color: #fff;
+      box-shadow: 0 6px 18px var(--primary-glow); flex-shrink: 0;
     }
-
-    .eyebrow {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 12px;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.7);
-      color: var(--secondary);
-      font-size: 0.85rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      margin-bottom: 14px;
+    .brand-name {
+      font-family: var(--font-display); font-size: 1.2rem;
+      font-weight: 700; line-height: 1.1; color: var(--text);
     }
+    .brand-tagline { font-size: 0.76rem; color: var(--muted); margin-top: 1px; }
+    .header-controls { display: flex; align-items: center; gap: 9px; }
 
-    h1 {
-      font-size: clamp(2.4rem, 5vw, 3.8rem);
-      line-height: 0.95;
-      margin-bottom: 12px;
+    .streak-badge {
+      display: flex; align-items: center; gap: 6px;
+      padding: 7px 13px; border-radius: 999px;
+      background: var(--gold-soft);
+      border: 1px solid rgba(232, 168, 62, 0.3);
+      font-size: 0.84rem; font-weight: 600; color: var(--gold);
+      transition: var(--transition); cursor: default;
     }
+    .streak-badge:hover { background: rgba(232, 168, 62, 0.26); }
 
-    .hero-copy {
-      font-family: "Trebuchet MS", Arial, sans-serif;
-      color: var(--muted);
-      line-height: 1.65;
-      margin-bottom: 20px;
+    .icon-btn {
+      width: 40px; height: 40px; border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--surface); color: var(--muted);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 1.05rem;
+      transition: var(--transition); backdrop-filter: blur(10px);
     }
-
-    .topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      margin-bottom: 18px;
+    .icon-btn:hover {
+      background: var(--surface-hover); color: var(--text);
+      border-color: var(--border-strong);
+      transform: translateY(-1px); box-shadow: var(--shadow-sm);
     }
+    .icon-btn:active { transform: translateY(0); }
 
-    .topbar-note {
-      font-family: "Trebuchet MS", Arial, sans-serif;
-      color: var(--muted);
-      line-height: 1.6;
-      max-width: 48ch;
+    /* =================== GREETING BAR =================== */
+    .greeting-bar {
+      display: flex; align-items: center;
+      justify-content: space-between; flex-wrap: wrap; gap: 10px;
+      padding: 13px 22px; border-radius: var(--radius-lg);
+      background: linear-gradient(135deg, var(--secondary-soft), var(--gold-soft));
+      border: 1px solid rgba(46, 111, 104, 0.16);
+      margin-bottom: 14px; font-size: 0.9rem;
     }
+    .greeting-text { color: var(--secondary); font-weight: 600; }
+    .greeting-date { color: var(--muted); font-size: 0.84rem; }
 
-    .nav-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 16px;
-      align-items: center;
+    /* =================== CATEGORY NAV =================== */
+    .category-nav {
+      display: flex; flex-wrap: wrap; gap: 8px;
+      padding: 14px 20px; margin-bottom: 14px; align-items: center;
     }
-
-    .chip,
-    button {
-      border: none;
-      cursor: pointer;
-      transition: transform var(--transition), background var(--transition), color var(--transition), box-shadow var(--transition), border-color var(--transition);
+    .category-nav-label {
+      font-size: 0.76rem; text-transform: uppercase;
+      letter-spacing: 0.09em; color: var(--muted);
+      margin-right: 4px; font-weight: 700;
     }
-
     .chip {
-      border: 1px solid rgba(110, 91, 78, 0.18);
-      padding: 10px 14px;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.75);
-      color: var(--muted);
-      font-family: "Trebuchet MS", Arial, sans-serif;
-      font-size: 0.95rem;
-    }
-
-    .chip:hover,
-    .chip.active {
-      background: var(--text);
-      color: #fff8ef;
-      transform: translateY(-1px);
-    }
-
-    .nav-link {
+      padding: 7px 15px; border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--surface); color: var(--muted);
+      font-family: var(--font-body); font-size: 0.86rem; font-weight: 500;
+      cursor: pointer; transition: var(--transition);
       text-decoration: none;
+      display: inline-flex; align-items: center; gap: 5px;
     }
-
-    .focus-stage {
-      padding: 18px;
-      margin-top: 18px;
+    .chip:hover {
+      background: var(--surface-hover); color: var(--text);
+      border-color: var(--border-strong); transform: translateY(-1px);
     }
-
-    .affirmation-card {
-      position: relative;
-      padding: 34px;
-      border-radius: var(--radius-lg);
-      background:
-        linear-gradient(145deg, rgba(255, 251, 245, 0.96), rgba(251, 238, 220, 0.92)),
-        #fffdf9;
-      border: 1px solid rgba(110, 91, 78, 0.12);
-      overflow: hidden;
-      min-height: 430px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
+    .chip.active {
+      background: var(--text); color: var(--bg);
+      border-color: var(--text); box-shadow: 0 4px 14px rgba(44, 33, 24, 0.2);
     }
+    [data-theme="dark"] .chip.active { box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45); }
 
-    .affirmation-card::after {
-      content: "";
-      position: absolute;
-      width: 200px;
-      height: 200px;
-      border-radius: 50%;
-      right: -70px;
-      top: -80px;
-      background: radial-gradient(circle, rgba(243, 191, 98, 0.3), transparent 70%);
+    /* =================== AFFIRMATION CARD =================== */
+    .affirmation-stage { padding: 12px; margin-bottom: 14px; }
+    .affirmation-inner {
+      position: relative; border-radius: var(--radius-lg);
+      background: linear-gradient(148deg, rgba(255, 252, 246, 0.98) 0%, rgba(251, 238, 218, 0.9) 100%);
+      border: 1px solid var(--border); overflow: hidden;
+      min-height: 390px; display: flex; flex-direction: column;
     }
-
-    .label {
-      font-family: "Trebuchet MS", Arial, sans-serif;
-      color: var(--secondary);
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      font-size: 0.8rem;
+    [data-theme="dark"] .affirmation-inner {
+      background: linear-gradient(148deg, rgba(50, 32, 20, 0.98) 0%, rgba(38, 24, 14, 0.9) 100%);
     }
-
-    .affirmation {
-      position: relative;
-      font-size: clamp(2.2rem, 4.6vw, 4.2rem);
-      line-height: 1.08;
-      margin: 18px 0 18px;
-      max-width: 12ch;
-      transition: opacity 200ms ease, transform 200ms ease;
+    .affirmation-deco { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
+    .affirmation-deco::before {
+      content: ""; position: absolute;
+      width: 340px; height: 340px; border-radius: 50%;
+      right: -110px; top: -110px;
+      background: radial-gradient(circle, rgba(232, 168, 62, 0.22), transparent 65%);
     }
-
-    .affirmation.fade {
-      opacity: 0;
-      transform: translateY(8px);
+    .affirmation-deco::after {
+      content: ""; position: absolute;
+      width: 200px; height: 200px; border-radius: 50%;
+      left: -60px; bottom: -60px;
+      background: radial-gradient(circle, rgba(46, 111, 104, 0.16), transparent 65%);
     }
-
-    .meta-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      align-items: center;
-      margin-bottom: 18px;
-      font-family: "Trebuchet MS", Arial, sans-serif;
-      color: var(--muted);
+    .affirmation-body {
+      position: relative; z-index: 1;
+      padding: 34px 36px 28px; flex: 1;
+      display: flex; flex-direction: column;
     }
+    .affirmation-label {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 0.73rem; text-transform: uppercase;
+      letter-spacing: 0.1em; color: var(--secondary);
+      font-weight: 700; margin-bottom: 14px;
+    }
+    .big-quote {
+      font-family: var(--font-display);
+      font-size: clamp(1.9rem, 4.8vw, 3.7rem);
+      line-height: 1.1; font-weight: 700;
+      margin-bottom: 18px; max-width: 14ch; color: var(--text);
+      transition: opacity 230ms ease, transform 230ms ease;
+    }
+    .big-quote.fade-out { opacity: 0; transform: translateY(10px); }
+    .big-quote.fade-in  { opacity: 1; transform: translateY(0); }
+    .decorative-qmark {
+      position: absolute; top: 28px; right: 34px;
+      font-family: var(--font-display); font-size: 6rem; line-height: 1;
+      color: rgba(200, 92, 58, 0.1); pointer-events: none; user-select: none;
+    }
+    [data-theme="dark"] .decorative-qmark { color: rgba(224, 104, 64, 0.11); }
 
+    .affirmation-meta { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 14px; }
     .pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      border-radius: 999px;
-      padding: 7px 12px;
-      background: rgba(46, 111, 104, 0.1);
-      color: var(--secondary);
-      font-size: 0.9rem;
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 5px 12px; border-radius: 999px;
+      font-size: 0.8rem; font-weight: 600; transition: var(--transition);
+    }
+    .pill-cat  { background: var(--secondary-soft); color: var(--secondary); }
+    .pill-tone { background: var(--gold-soft); color: var(--gold); border: 1px solid rgba(232,168,62,0.25); }
+
+    .reflection-prompt {
+      font-size: 0.93rem; color: var(--muted); line-height: 1.72;
+      max-width: 54ch; margin-bottom: 22px; font-style: italic;
+    }
+    .action-row { display: flex; flex-wrap: wrap; gap: 9px; align-items: center; margin-top: auto; }
+
+    /* =================== PROGRESS BAR =================== */
+    .progress-track { height: 3px; background: var(--border); border-radius: 0 0 var(--radius-lg) var(--radius-lg); overflow: hidden; }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--gold-raw));
+      border-radius: 999px; transition: width 0.8s linear;
     }
 
-    .prompt {
-      font-family: "Trebuchet MS", Arial, sans-serif;
-      color: var(--muted);
-      line-height: 1.7;
-      max-width: 52ch;
-      margin-bottom: 22px;
-    }
-
-    .action-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-
+    /* =================== BUTTONS =================== */
+    button { border: none; cursor: pointer; font-family: var(--font-body); transition: var(--transition); }
     .btn {
-      padding: 13px 18px;
-      border-radius: 999px;
-      font-family: "Trebuchet MS", Arial, sans-serif;
-      font-size: 0.96rem;
-      font-weight: 700;
+      padding: 10px 20px; border-radius: 999px;
+      font-size: 0.9rem; font-weight: 600;
+      display: inline-flex; align-items: center; gap: 7px; white-space: nowrap;
     }
-
-    .btn:hover {
-      transform: translateY(-1px);
-    }
-
+    .btn:hover  { transform: translateY(-2px); }
+    .btn:active { transform: translateY(0); }
     .btn-primary {
-      background: var(--primary);
-      color: #fff7f3;
-      box-shadow: 0 12px 24px rgba(200, 92, 58, 0.26);
+      background: var(--primary); color: #fff;
+      box-shadow: 0 6px 20px var(--primary-glow);
     }
-
-    .btn-primary:hover {
-      background: var(--primary-strong);
+    .btn-primary:hover { background: var(--primary-strong); box-shadow: 0 10px 28px var(--primary-glow); }
+    .btn-outline {
+      background: var(--surface); color: var(--text);
+      border: 1px solid var(--border-strong);
     }
+    .btn-outline:hover { background: var(--surface-hover); border-color: var(--text); }
+    .btn-ghost  { background: var(--secondary-soft); color: var(--secondary); }
+    .btn-ghost:hover { background: rgba(46, 111, 104, 0.22); }
 
-    .btn-secondary {
-      background: rgba(255, 255, 255, 0.85);
-      color: var(--text);
-      border: 1px solid rgba(110, 91, 78, 0.18);
+    .kbd {
+      display: inline-block; padding: 1px 6px;
+      border-radius: 4px; border: 1px solid var(--border-strong);
+      background: var(--surface); font-size: 0.73rem;
+      font-weight: 600; color: var(--muted);
     }
+    .keyboard-hint { display: inline-flex; align-items: center; gap: 4px; font-size: 0.77rem; color: var(--muted-light); }
 
-    .btn-ghost {
-      background: rgba(46, 111, 104, 0.1);
-      color: var(--secondary);
+    /* =================== TOAST =================== */
+    .toast-container {
+      position: fixed; bottom: 26px; left: 50%; transform: translateX(-50%);
+      z-index: 9999; display: flex; flex-direction: column;
+      align-items: center; gap: 8px; pointer-events: none;
     }
-
-    .side-panel {
-      padding: 24px;
+    .toast {
+      padding: 11px 22px; border-radius: 999px;
+      background: var(--text); color: var(--bg);
+      font-size: 0.88rem; font-weight: 500;
+      box-shadow: var(--shadow-lg);
+      animation: toastIn 300ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
     }
+    .toast.out { animation: toastOut 260ms ease forwards; }
+    @keyframes toastIn  { from { opacity: 0; transform: translateY(14px) scale(0.93); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    @keyframes toastOut { from { opacity: 1; transform: translateY(0) scale(1); } to { opacity: 0; transform: translateY(-7px) scale(0.96); } }
 
-    .panel-title {
-      font-size: 1.2rem;
-      margin-bottom: 10px;
+    /* =================== PANELS GRID =================== */
+    .panels-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+    .panel-full { grid-column: 1 / -1; }
+    .side-panel { padding: 22px; }
+
+    .panel-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 14px; }
+    .panel-title { font-family: var(--font-display); font-size: 1.08rem; font-weight: 700; color: var(--text); }
+    .panel-subtitle { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+    .panel-action {
+      font-size: 0.8rem; color: var(--muted); cursor: pointer;
+      padding: 4px 10px; border-radius: 999px;
+      background: transparent; border: 1px solid var(--border);
+      transition: var(--transition); white-space: nowrap; flex-shrink: 0;
     }
+    .panel-action:hover { background: var(--surface-hover); color: var(--text); }
 
-    .subtle {
-      font-family: "Trebuchet MS", Arial, sans-serif;
-      color: var(--muted);
-      line-height: 1.6;
+    /* =================== LISTS =================== */
+    .affirmation-list {
+      list-style: none; display: flex; flex-direction: column; gap: 9px;
+      max-height: 300px; overflow-y: auto; padding-right: 4px;
     }
+    .affirmation-list::-webkit-scrollbar { width: 4px; }
+    .affirmation-list::-webkit-scrollbar-track { background: transparent; }
+    .affirmation-list::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 999px; }
 
-    .history-list,
-    .favorites-list {
-      list-style: none;
-      display: grid;
-      gap: 12px;
-      margin-top: 16px;
+    .list-item {
+      padding: 13px 14px; border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.5); border: 1px solid var(--border);
+      cursor: pointer; transition: var(--transition);
+      display: flex; align-items: flex-start; gap: 9px;
+      animation: itemIn 280ms ease forwards;
     }
-
-    .history-item,
-    .favorite-item {
-      padding: 14px 15px;
-      border-radius: var(--radius-md);
-      background: rgba(255, 255, 255, 0.66);
-      border: 1px solid rgba(110, 91, 78, 0.12);
+    [data-theme="dark"] .list-item { background: rgba(255, 215, 180, 0.04); }
+    .list-item:hover {
+      background: rgba(255, 255, 255, 0.8); border-color: var(--border-strong);
+      transform: translateX(3px);
     }
+    [data-theme="dark"] .list-item:hover { background: rgba(255, 215, 180, 0.09); }
+    @keyframes itemIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
+    .item-content { flex: 1; min-width: 0; }
     .item-tag {
-      display: inline-block;
-      margin-bottom: 6px;
-      font-family: "Trebuchet MS", Arial, sans-serif;
-      font-size: 0.75rem;
-      color: var(--secondary);
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
+      display: inline-block; margin-bottom: 3px;
+      font-size: 0.7rem; color: var(--secondary);
+      text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700;
     }
+    .item-text { font-size: 0.88rem; line-height: 1.5; color: var(--text-soft); font-family: var(--font-display); }
 
-    .item-text {
-      line-height: 1.45;
+    .item-remove {
+      width: 26px; height: 26px; border-radius: 7px;
+      background: transparent; border: none;
+      color: var(--muted-light); font-size: 0.88rem;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; flex-shrink: 0; margin-top: 2px;
+      opacity: 0; transition: var(--transition);
     }
+    .list-item:hover .item-remove { opacity: 1; }
+    .item-remove:hover { background: rgba(200, 58, 58, 0.12); color: #c83a3a; }
 
     .empty-state {
-      margin-top: 14px;
-      padding: 18px;
-      border-radius: var(--radius-md);
-      background: rgba(255, 255, 255, 0.56);
-      font-family: "Trebuchet MS", Arial, sans-serif;
-      color: var(--muted);
-      line-height: 1.6;
+      padding: 22px 16px; border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.4); color: var(--muted);
+      font-size: 0.88rem; line-height: 1.65; text-align: center;
     }
+    [data-theme="dark"] .empty-state { background: rgba(255, 215, 180, 0.04); }
+    .empty-icon { font-size: 1.8rem; display: block; margin-bottom: 7px; opacity: 0.55; }
 
-    .quote-mark {
-      position: absolute;
-      top: 24px;
-      right: 26px;
-      font-size: 4rem;
-      line-height: 1;
-      color: rgba(200, 92, 58, 0.14);
+    /* =================== DAILY ANCHOR =================== */
+    .daily-anchor {
+      padding: 14px 18px; border-radius: var(--radius-md);
+      background: var(--gold-soft);
+      border: 1px solid rgba(232, 168, 62, 0.26);
+      display: flex; align-items: flex-start; gap: 11px; margin-top: 12px;
     }
-
-    .status {
-      min-height: 24px;
-      margin-top: 12px;
-      font-family: "Trebuchet MS", Arial, sans-serif;
-      color: var(--secondary);
+    .daily-anchor-icon { font-size: 1.15rem; flex-shrink: 0; margin-top: 2px; }
+    .daily-anchor-label {
+      font-size: 0.7rem; text-transform: uppercase;
+      letter-spacing: 0.08em; color: var(--gold); font-weight: 700; margin-bottom: 3px;
     }
+    .daily-anchor-text { font-family: var(--font-display); font-size: 0.9rem; color: var(--text-soft); line-height: 1.56; }
 
-    .daily-note {
-      margin-top: 16px;
-      padding: 16px;
-      border-radius: var(--radius-md);
-      background: rgba(243, 191, 98, 0.18);
-      font-family: "Trebuchet MS", Arial, sans-serif;
-      line-height: 1.6;
-      color: #704d11;
+    /* =================== STATS =================== */
+    .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 11px; }
+    .stat-card {
+      padding: 15px; border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.5);
+      border: 1px solid var(--border); text-align: center; transition: var(--transition);
     }
-
-    .utility-panels {
-      display: grid;
-      gap: 18px;
-      margin-top: 18px;
-    }
-
-    .summary-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 14px;
-      margin-top: 16px;
-    }
-
-    .stat {
-      padding: 16px;
-      border-radius: var(--radius-md);
-      background: rgba(255, 255, 255, 0.56);
-    }
-
+    [data-theme="dark"] .stat-card { background: rgba(255, 215, 180, 0.05); }
+    .stat-card:hover { background: rgba(255,255,255,0.74); transform: translateY(-2px); }
+    [data-theme="dark"] .stat-card:hover { background: rgba(255, 215, 180, 0.1); }
     .stat-value {
-      display: block;
-      font-size: 1.55rem;
-      font-weight: 700;
-      margin-bottom: 4px;
+      display: block; font-family: var(--font-display);
+      font-size: 1.75rem; font-weight: 700; color: var(--text);
+      line-height: 1; margin-bottom: 4px;
+    }
+    .stat-label { font-size: 0.78rem; color: var(--muted); }
+
+    /* =================== JOURNAL =================== */
+    .journal-prompt-text { font-size: 0.9rem; color: var(--muted); margin-bottom: 11px; line-height: 1.6; font-style: italic; }
+    .journal-input {
+      width: 100%; min-height: 92px; padding: 13px 15px;
+      border-radius: var(--radius-md); border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.58); color: var(--text);
+      font-family: var(--font-display); font-size: 0.94rem; line-height: 1.65;
+      resize: vertical; transition: var(--transition); outline: none;
+      transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
+    }
+    [data-theme="dark"] .journal-input { background: rgba(255, 215, 180, 0.06); }
+    .journal-input::placeholder { color: var(--muted-light); }
+    .journal-input:focus {
+      border-color: var(--secondary);
+      background: rgba(255, 255, 255, 0.86);
+      box-shadow: 0 0 0 3px var(--secondary-glow);
+    }
+    [data-theme="dark"] .journal-input:focus { background: rgba(255, 215, 180, 0.11); }
+    .journal-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 9px; }
+    .char-count { font-size: 0.78rem; color: var(--muted-light); }
+
+    .journal-entries { margin-top: 14px; display: flex; flex-direction: column; gap: 9px; max-height: 260px; overflow-y: auto; }
+    .journal-entry {
+      padding: 14px 15px; border-radius: var(--radius-md);
+      background: rgba(255,255,255,0.5); border: 1px solid var(--border);
+    }
+    [data-theme="dark"] .journal-entry { background: rgba(255, 215, 180, 0.04); }
+    .journal-entry-meta { font-size: 0.73rem; color: var(--muted-light); margin-bottom: 5px; display: flex; gap: 8px; flex-wrap: wrap; }
+    .journal-affirmation-ref { font-size: 0.8rem; color: var(--muted); font-style: italic; margin-bottom: 5px; font-family: var(--font-display); }
+    .journal-entry-text { font-size: 0.88rem; color: var(--text-soft); line-height: 1.6; }
+
+    /* =================== BREATHING =================== */
+    .breathing-panel { text-align: center; }
+    .breath-intro { font-size: 0.88rem; color: var(--muted); margin-bottom: 6px; line-height: 1.6; }
+    .breath-ring-wrap { display: flex; justify-content: center; align-items: center; margin: 18px 0; }
+    .breath-ring {
+      width: 144px; height: 144px; border-radius: 50%;
+      background: var(--secondary-soft);
+      border: 3px solid rgba(46, 111, 104, 0.28);
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 3px;
+      transition: transform 4s ease-in-out, background 1.2s ease, box-shadow 1.2s ease;
+      position: relative;
+    }
+    .breath-ring::before {
+      content: ""; position: absolute; inset: -10px;
+      border-radius: 50%; border: 2px dashed rgba(46, 111, 104, 0.22);
+      animation: spinSlow 22s linear infinite;
+    }
+    @keyframes spinSlow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    .breath-ring.inhale {
+      transform: scale(1.24);
+      background: rgba(46, 111, 104, 0.2);
+      box-shadow: 0 0 48px rgba(46, 111, 104, 0.32);
+    }
+    .breath-ring.hold {
+      transform: scale(1.24);
+      background: rgba(232, 168, 62, 0.2);
+      box-shadow: 0 0 48px rgba(232, 168, 62, 0.3);
+    }
+    .breath-ring.exhale {
+      transform: scale(1);
+      background: rgba(200, 92, 58, 0.12);
+      box-shadow: 0 0 22px rgba(200, 92, 58, 0.2);
+    }
+    .breath-count { font-family: var(--font-display); font-size: 1.9rem; font-weight: 700; color: var(--secondary); line-height: 1; }
+    .breath-step-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+    .breath-cycles-info { font-size: 0.83rem; color: var(--muted); margin-bottom: 15px; }
+    .breath-btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+
+    /* =================== CONFETTI =================== */
+    .confetti-piece {
+      position: fixed; width: 8px; height: 8px; border-radius: 2px;
+      pointer-events: none; z-index: 9998;
+      animation: confettiFall 1.3s ease-out forwards;
+    }
+    @keyframes confettiFall {
+      0%   { opacity: 1; transform: translateY(0) rotate(0deg) scale(1); }
+      100% { opacity: 0; transform: translateY(220px) rotate(760deg) scale(0.3); }
     }
 
-    .stat-label {
-      font-family: "Trebuchet MS", Arial, sans-serif;
-      color: var(--muted);
-      font-size: 0.95rem;
+    /* =================== FOOTER =================== */
+    .app-footer { text-align: center; font-size: 0.8rem; color: var(--muted-light); padding: 6px 0 4px; line-height: 1.8; }
+
+    /* =================== RESPONSIVE =================== */
+    @media (max-width: 740px) {
+      .panels-grid { grid-template-columns: 1fr; }
+      .app-header { padding: 14px 16px; }
+      .affirmation-body { padding: 24px 20px 20px; }
+      .big-quote { max-width: none; font-size: clamp(1.6rem, 5.5vw, 2.8rem); }
+      .brand-tagline { display: none; }
+      .greeting-bar { flex-direction: column; align-items: flex-start; gap: 3px; }
+    }
+    @media (max-width: 480px) {
+      .page { width: min(100% - 14px, 960px); padding-top: 12px; }
+      .action-row { flex-direction: column; }
+      .action-row .btn { width: 100%; justify-content: center; }
+      .stats-row { grid-template-columns: 1fr; }
+      .keyboard-hint { display: none; }
     }
 
-    .panel-toggle {
-      width: 100%;
-      text-align: left;
-      background: transparent;
-      color: var(--text);
-      font-size: 1.05rem;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0;
-    }
-
-    .panel-toggle span:last-child {
-      font-family: "Trebuchet MS", Arial, sans-serif;
-      color: var(--muted);
-      font-size: 0.92rem;
-      font-weight: 400;
-    }
-
-    .panel-body {
-      margin-top: 16px;
-    }
-
-    .footer {
-      margin-top: 22px;
-      text-align: center;
-      font-family: "Trebuchet MS", Arial, sans-serif;
-      color: var(--muted);
-      font-size: 0.92rem;
-    }
-
-    @media (max-width: 960px) {
-      h1,
-      .affirmation {
-        max-width: none;
-      }
-    }
-
-    @media (max-width: 640px) {
-      .page {
-        width: min(100% - 20px, 1150px);
-        padding-top: 18px;
-      }
-
-      .hero-card,
-      .side-panel,
-      .focus-stage,
-      .affirmation-card {
-        padding: 20px;
-      }
-
-      .topbar {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      .summary-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .action-row {
-        flex-direction: column;
-      }
-
-      .btn {
-        width: 100%;
-      }
-    }
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 999px; }
   </style>
 </head>
 <body>
-  <div class="page">
-    <section class="panel hero-card">
-      <div class="topbar">
+
+  <!-- Animated background -->
+  <div class="bg-canvas" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <!-- Toast container -->
+  <div class="toast-container" id="toastContainer" role="status" aria-live="polite"></div>
+
+  <main class="page">
+
+    <!-- ── Header ── -->
+    <header class="panel app-header">
+      <div class="brand">
+        <div class="brand-icon" aria-hidden="true">✦</div>
         <div>
-          <div class="eyebrow">Daily reset</div>
-          <h1>Affirmation Studio</h1>
-          <p class="hero-copy">A quieter first screen with the affirmation at the center. Use the links below whenever you want to explore more.</p>
+          <div class="brand-name">Affirmation Studio</div>
+          <div class="brand-tagline">Begin every day with intention</div>
         </div>
-        <div class="nav-row">
-          <a class="chip nav-link" href="#categoriesPanel">Categories</a>
-          <a class="chip nav-link" href="#favoritesPanel">Favorites</a>
-          <a class="chip nav-link" href="#historyPanel">History</a>
+      </div>
+      <div class="header-controls">
+        <div class="streak-badge" id="streakBadge" title="Your daily visit streak">
+          🔥 <span id="streakCount">0</span> day streak
+        </div>
+        <button class="icon-btn" id="shareBtn"  title="Share this affirmation" aria-label="Share affirmation">📤</button>
+        <button class="icon-btn" id="themeBtn"  title="Toggle dark / light mode" aria-label="Toggle theme">🌙</button>
+      </div>
+    </header>
+
+    <!-- ── Greeting ── -->
+    <div class="greeting-bar">
+      <span class="greeting-text" id="greetingText">Good morning ☀️</span>
+      <span class="greeting-date"  id="greetingDate"></span>
+    </div>
+
+    <!-- ── Category nav ── -->
+    <nav class="panel category-nav" aria-label="Affirmation categories">
+      <span class="category-nav-label">Mood:</span>
+      <div id="categoryChips" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
+    </nav>
+
+    <!-- ── Main affirmation card ── -->
+    <section class="panel affirmation-stage" aria-label="Current affirmation">
+      <div class="affirmation-inner">
+        <div class="affirmation-deco" aria-hidden="true"></div>
+        <div class="affirmation-body">
+          <div class="decorative-qmark" aria-hidden="true">"</div>
+          <span class="affirmation-label">✦ Featured affirmation</span>
+          <h1 class="big-quote fade-in" id="affirmationText"></h1>
+          <div class="affirmation-meta">
+            <span class="pill pill-cat"  id="categoryPill"></span>
+            <span class="pill pill-tone" id="tonePill"></span>
+          </div>
+          <p class="reflection-prompt" id="reflectionPrompt"></p>
+          <div class="action-row">
+            <button class="btn btn-primary" id="refreshButton"  type="button">↻ New affirmation</button>
+            <button class="btn btn-outline" id="favoriteButton" type="button">♡ Save favorite</button>
+            <button class="btn btn-ghost"   id="copyButton"     type="button">⎘ Copy</button>
+            <span class="keyboard-hint"><kbd class="kbd">Space</kbd> = new &nbsp;·&nbsp; <kbd class="kbd">F</kbd> = favorite</span>
+          </div>
+        </div>
+        <div class="progress-track" aria-hidden="true">
+          <div class="progress-fill" id="progressFill" style="width:100%"></div>
         </div>
       </div>
 
-      <section class="panel focus-stage">
-        <article class="affirmation-card">
-          <div class="quote-mark">"</div>
-          <span class="label">Featured message</span>
-          <h2 class="affirmation" id="affirmationText"></h2>
-          <div class="meta-row">
-            <span class="pill" id="categoryPill"></span>
-            <span class="pill" id="tonePill"></span>
-          </div>
-          <p class="prompt" id="reflectionPrompt"></p>
-          <div class="action-row">
-            <button class="btn btn-primary" id="refreshButton" type="button">New affirmation</button>
-            <button class="btn btn-secondary" id="favoriteButton" type="button">Save to favorites</button>
-            <button class="btn btn-ghost" id="copyButton" type="button">Copy text</button>
-          </div>
-          <div class="status" id="statusText" aria-live="polite"></div>
-        </article>
-      </section>
-
-      <div class="daily-note" id="dailyNote"></div>
+      <!-- Daily anchor -->
+      <div class="daily-anchor" id="dailyAnchor">
+        <span class="daily-anchor-icon">⚓</span>
+        <div>
+          <div class="daily-anchor-label">Today's anchor</div>
+          <div class="daily-anchor-text" id="dailyAnchorText"></div>
+        </div>
+      </div>
     </section>
 
-    <section class="utility-panels">
-      <details class="panel side-panel" id="categoriesPanel">
-        <summary class="panel-toggle">
-          <span>Categories</span>
-          <span>Choose a mood</span>
-        </summary>
-        <div class="panel-body">
-          <p class="topbar-note">Pick a category whenever you want the message to lean toward calm, gratitude, love, growth, or self-worth.</p>
-          <div class="nav-row" id="categoryChips"></div>
-        </div>
-      </details>
+    <!-- ── Panels grid ── -->
+    <div class="panels-grid">
 
-      <details class="panel side-panel" id="favoritesPanel">
-        <summary class="panel-toggle">
-          <span>Favorites</span>
-          <span>Saved on this device</span>
-        </summary>
-        <div class="panel-body">
-          <ul class="favorites-list" id="favoritesList"></ul>
-          <div class="empty-state" id="favoritesEmpty">No favorites yet. Save a line that feels worth keeping.</div>
+      <!-- Favorites -->
+      <div class="panel side-panel">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">♡ Favorites</div>
+            <div class="panel-subtitle" id="favSubtitle">None saved yet</div>
+          </div>
+          <button class="panel-action" id="clearFavBtn" type="button" style="display:none;">Clear all</button>
         </div>
-      </details>
-
-      <details class="panel side-panel" id="historyPanel">
-        <summary class="panel-toggle">
-          <span>Recent history</span>
-          <span>Your last few reflections</span>
-        </summary>
-        <div class="panel-body">
-          <ul class="history-list" id="historyList"></ul>
-          <div class="empty-state" id="historyEmpty">Your recent affirmations will appear here.</div>
+        <ul class="affirmation-list" id="favoritesList" aria-label="Saved favorites"></ul>
+        <div class="empty-state" id="favoritesEmpty">
+          <span class="empty-icon">✦</span>
+          Tap "Save favorite" on any affirmation that resonates with you.
         </div>
-      </details>
+      </div>
 
-      <section class="panel side-panel">
-        <h2 class="panel-title">Overview</h2>
-        <p class="subtle">The extras are still here, but now they stay out of the way until someone wants them.</p>
-        <div class="summary-grid">
-          <div class="stat">
+      <!-- History -->
+      <div class="panel side-panel">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">◷ Recent history</div>
+            <div class="panel-subtitle" id="histSubtitle">No recent reflections</div>
+          </div>
+          <button class="panel-action" id="clearHistBtn" type="button" style="display:none;">Clear</button>
+        </div>
+        <ul class="affirmation-list" id="historyList" aria-label="Recent history"></ul>
+        <div class="empty-state" id="historyEmpty">
+          <span class="empty-icon">◷</span>
+          Affirmations you view will appear here automatically.
+        </div>
+      </div>
+
+      <!-- Journal (full-width) -->
+      <div class="panel side-panel panel-full">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">✎ Reflection Journal</div>
+            <div class="panel-subtitle">Your thoughts on today's affirmations</div>
+          </div>
+          <button class="panel-action" id="printFavsBtn" type="button">🖨 Print favorites</button>
+        </div>
+        <p class="journal-prompt-text" id="journalPromptText">What does today's affirmation mean to you?</p>
+        <textarea
+          class="journal-input"
+          id="journalInput"
+          maxlength="600"
+          placeholder="Write your reflection here…"
+          aria-label="Journal entry"
+        ></textarea>
+        <div class="journal-footer">
+          <span class="char-count"><span id="charCount">0</span> / 600</span>
+          <button class="btn btn-ghost" id="saveJournalBtn" type="button">Save reflection</button>
+        </div>
+        <div class="journal-entries" id="journalEntries"></div>
+      </div>
+
+      <!-- Breathing -->
+      <div class="panel side-panel breathing-panel">
+        <div class="panel-header" style="justify-content:center;">
+          <div>
+            <div class="panel-title">◎ Breathing Guide</div>
+            <div class="panel-subtitle" style="text-align:center;">4 · 7 · 8 calming technique</div>
+          </div>
+        </div>
+        <p class="breath-intro">Follow the ring to inhale, hold, and exhale your way to calm.</p>
+        <p class="breath-cycles-info" id="breathCyclesInfo">Complete 4 cycles to feel centered</p>
+        <div class="breath-ring-wrap">
+          <div class="breath-ring" id="breathRing">
+            <span class="breath-count"     id="breathCount">—</span>
+            <span class="breath-step-label" id="breathLabel">Ready</span>
+          </div>
+        </div>
+        <div class="breath-btns">
+          <button class="btn btn-ghost"   id="breathStartBtn" type="button">▶ Start</button>
+          <button class="btn btn-outline" id="breathResetBtn" type="button" style="display:none;">✕ Stop</button>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="panel side-panel">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">◈ Your overview</div>
+            <div class="panel-subtitle">Practice at a glance</div>
+          </div>
+        </div>
+        <div class="stats-row">
+          <div class="stat-card">
             <span class="stat-value" id="totalCount">0</span>
-            <span class="stat-label">Curated affirmations</span>
+            <span class="stat-label">Affirmations</span>
           </div>
-          <div class="stat">
+          <div class="stat-card">
             <span class="stat-value" id="favoriteCount">0</span>
-            <span class="stat-label">Saved favorites</span>
+            <span class="stat-label">Favorites</span>
           </div>
-          <div class="stat">
+          <div class="stat-card">
             <span class="stat-value" id="historyCount">0</span>
-            <span class="stat-label">Recent reflections</span>
+            <span class="stat-label">Viewed</span>
           </div>
         </div>
-      </section>
-    </section>
+      </div>
 
-    <p class="footer">Open this file in any browser. No setup required.</p>
-  </div>
+    </div><!-- /panels-grid -->
+
+    <footer class="app-footer">
+      Affirmation Studio &nbsp;·&nbsp; Open in any browser &nbsp;·&nbsp; No account needed<br>
+      <span style="opacity:.55;font-size:.73rem;">
+        <kbd class="kbd">Space</kbd> new &nbsp;·&nbsp;
+        <kbd class="kbd">F</kbd> favorite &nbsp;·&nbsp;
+        <kbd class="kbd">C</kbd> copy &nbsp;·&nbsp;
+        Swipe left / right on mobile
+      </span>
+    </footer>
+
+  </main>
 
   <script>
-    const STORAGE_KEYS = {
-      favorites: "affirmation-studio-favorites",
-      history: "affirmation-studio-history",
-      category: "affirmation-studio-category"
+    "use strict";
+
+    // ─────────────────────────────────────────────
+    // STORAGE KEYS
+    // ─────────────────────────────────────────────
+    const KEYS = {
+      favorites : "as-favorites-v3",
+      history   : "as-history-v3",
+      category  : "as-category-v3",
+      theme     : "as-theme-v3",
+      streak    : "as-streak-v3",
+      journal   : "as-journal-v3"
     };
 
-    const categories = [
-      { id: "all", label: "All moods" },
-      { id: "self-worth", label: "Self-worth" },
-      { id: "love", label: "Love" },
-      { id: "calm", label: "Calm" },
-      { id: "gratitude", label: "Gratitude" },
-      { id: "growth", label: "Growth" }
+    // ─────────────────────────────────────────────
+    // AFFIRMATION DATA
+    // ─────────────────────────────────────────────
+    const CATEGORIES = [
+      { id: "all",        label: "All moods",  icon: "✦" },
+      { id: "self-worth", label: "Self-worth", icon: "◈" },
+      { id: "love",       label: "Love",       icon: "♡" },
+      { id: "calm",       label: "Calm",       icon: "◎" },
+      { id: "gratitude",  label: "Gratitude",  icon: "⊹" },
+      { id: "growth",     label: "Growth",     icon: "↑" }
     ];
 
-    const reflections = {
-      "self-worth": "Where have you already shown more strength than you usually give yourself credit for?",
-      "love": "Who or what feels deeply worth caring for in this season of your life?",
-      "calm": "What would it look like to make the next hour softer and less rushed?",
-      "gratitude": "What is already good here, even if it is small or easy to miss?",
-      "growth": "What challenge is quietly teaching you who you are becoming?",
-      "all": "Let the line sit with you for a moment, then notice what feeling it changes."
+    const REFLECTIONS = {
+      "self-worth" : "Where have you already shown more strength than you give yourself credit for?",
+      "love"       : "Who or what feels deeply worth caring for in this season of your life?",
+      "calm"       : "What would it look like to make the next hour softer and less rushed?",
+      "gratitude"  : "What is already good here, even if it feels small or easy to miss?",
+      "growth"     : "What challenge is quietly teaching you who you are becoming?",
+      "all"        : "Let this line sit with you for a moment. Notice what feeling it shifts."
     };
 
-    const coreAffirmations = [
+    const CORE = [
       { text: "I am allowed to take up space with confidence and grace.", category: "self-worth", tone: "Grounding" },
       { text: "My voice matters, even when I speak softly.", category: "self-worth", tone: "Steady" },
       { text: "I do not need to earn rest, kindness, or belonging.", category: "self-worth", tone: "Gentle" },
       { text: "I carry worth that does not shrink on difficult days.", category: "self-worth", tone: "Reassuring" },
+      { text: "I can be both a work in progress and deeply enough today.", category: "self-worth", tone: "Balanced" },
+      { text: "My tenderness is not weakness — it is part of my strength.", category: "self-worth", tone: "Affirming" },
+      { text: "I deserve the same compassion I give freely to others.", category: "self-worth", tone: "Gentle" },
+      { text: "I am enough as I am, even while I continue to grow.", category: "self-worth", tone: "Grounding" },
+      { text: "I do not have to explain my worth to anyone.", category: "self-worth", tone: "Steady" },
       { text: "I can trust the person I am becoming.", category: "growth", tone: "Forward-looking" },
       { text: "Small steps still count as powerful progress.", category: "growth", tone: "Motivating" },
       { text: "I am growing even in seasons that feel slow.", category: "growth", tone: "Patient" },
       { text: "Each challenge is teaching me how capable I really am.", category: "growth", tone: "Encouraging" },
       { text: "I can meet this moment without abandoning myself.", category: "growth", tone: "Resilient" },
+      { text: "Every season of growth deserves compassion, not punishment.", category: "growth", tone: "Gentle" },
+      { text: "I am learning to trust the timing of my own journey.", category: "growth", tone: "Patient" },
+      { text: "Courage is not the absence of fear — it is moving forward through it.", category: "growth", tone: "Bold" },
+      { text: "I am not behind. I am exactly where my story needs me to be.", category: "growth", tone: "Reassuring" },
       { text: "Peace can begin with one slower breath.", category: "calm", tone: "Breath-led" },
       { text: "I release what is urgent enough to steal my center.", category: "calm", tone: "Quiet" },
       { text: "I am safe to soften, pause, and begin again.", category: "calm", tone: "Soothing" },
       { text: "Calm is something I can practice, not something I have to wait for.", category: "calm", tone: "Mindful" },
       { text: "There is more holding me up than I can see right now.", category: "calm", tone: "Comforting" },
+      { text: "I am learning to create peace from the inside out.", category: "calm", tone: "Centered" },
+      { text: "I give myself permission to rest without guilt.", category: "calm", tone: "Gentle" },
+      { text: "This moment asks nothing more of me than presence.", category: "calm", tone: "Still" },
       { text: "Love around me is real, even when life feels loud.", category: "love", tone: "Warm" },
       { text: "I am worthy of love that feels honest, safe, and steady.", category: "love", tone: "Tender" },
       { text: "My heart can stay open without losing its wisdom.", category: "love", tone: "Open-hearted" },
       { text: "The right people will not require me to become smaller.", category: "love", tone: "Protective" },
+      { text: "I can love fully and still honor my boundaries.", category: "love", tone: "Grounded" },
+      { text: "Giving love to myself is not selfish — it is essential.", category: "love", tone: "Affirming" },
       { text: "I am grateful for the ordinary moments that quietly shape a good life.", category: "gratitude", tone: "Reflective" },
       { text: "There is beauty in what is already here.", category: "gratitude", tone: "Simple" },
       { text: "Today offers enough to notice, savor, and appreciate.", category: "gratitude", tone: "Present" },
       { text: "Even now, there is something worth saying thank you for.", category: "gratitude", tone: "Bright" },
-      { text: "I can be both a work in progress and deeply enough today.", category: "self-worth", tone: "Balanced" },
-      { text: "My tenderness is not weakness; it is part of my strength.", category: "self-worth", tone: "Affirming" },
-      { text: "I can love fully and still honor my boundaries.", category: "love", tone: "Grounded" },
-      { text: "I am learning to create peace from the inside out.", category: "calm", tone: "Centered" },
-      { text: "Every season of growth deserves compassion, not punishment.", category: "growth", tone: "Gentle" },
-      { text: "Gratitude makes room for joy without pretending life is perfect.", category: "gratitude", tone: "Honest" }
+      { text: "Gratitude makes room for joy without pretending life is perfect.", category: "gratitude", tone: "Honest" },
+      { text: "I collect small moments of goodness quietly, the way others collect gold.", category: "gratitude", tone: "Warm" },
+      { text: "Noticing what is good is itself a practice of strength.", category: "gratitude", tone: "Grounding" }
     ];
 
-    const generatedParts = {
+    const PARTS = {
       "self-worth": {
-        tones: ["Grounding", "Steady", "Gentle", "Reassuring", "Affirming", "Centered"],
-        openings: [
-          "I am worthy of",
-          "I welcome",
-          "I trust",
-          "I honor",
-          "I carry",
-          "I choose",
-          "I deserve",
-          "I protect"
-        ],
-        middles: [
-          "my own voice",
-          "the space I need",
-          "the truth of who I am",
-          "my softness and my strength",
-          "the good already inside me",
-          "my boundaries and my needs",
-          "the value I bring",
-          "the confidence growing in me"
-        ],
-        endings: [
-          "with calm certainty.",
-          "without apology.",
-          "even on uncertain days.",
-          "as I am, right now.",
-          "with quiet confidence.",
-          "and let it be enough.",
-          "without making myself smaller.",
-          "because my presence matters."
-        ]
+        tones: ["Grounding","Steady","Gentle","Reassuring","Affirming","Centered"],
+        openings: ["I am worthy of","I welcome","I trust","I honor","I carry","I choose","I deserve","I protect"],
+        middles:  ["my own voice","the space I need","the truth of who I am","my softness and my strength","the good already inside me","my boundaries and my needs","the value I bring","the confidence growing in me"],
+        endings:  ["with calm certainty.","without apology.","even on uncertain days.","as I am, right now.","with quiet confidence.","and let it be enough.","without making myself smaller.","because my presence matters."]
       },
       "love": {
-        tones: ["Warm", "Tender", "Open-hearted", "Grounded", "Protective", "Soft"],
-        openings: [
-          "I welcome",
-          "I am open to",
-          "I trust",
-          "I deserve",
-          "I create",
-          "I protect",
-          "I recognize",
-          "I receive"
-        ],
-        middles: [
-          "love that feels safe",
-          "care that is honest",
-          "connections that honor me",
-          "relationships with mutual respect",
-          "the tenderness already in my life",
-          "support that feels steady",
-          "the warmth that surrounds me",
-          "love that does not ask me to shrink"
-        ],
-        endings: [
-          "with an open heart.",
-          "and let it teach me peace.",
-          "without losing myself.",
-          "with trust and wisdom.",
-          "one honest moment at a time.",
-          "because I am worthy of it.",
-          "and make room for joy.",
-          "while honoring my boundaries."
-        ]
+        tones: ["Warm","Tender","Open-hearted","Grounded","Protective","Soft"],
+        openings: ["I welcome","I am open to","I trust","I deserve","I create","I protect","I recognize","I receive"],
+        middles:  ["love that feels safe","care that is honest","connections that honor me","relationships with mutual respect","the tenderness already in my life","support that feels steady","the warmth that surrounds me","love that does not ask me to shrink"],
+        endings:  ["with an open heart.","and let it teach me peace.","without losing myself.","with trust and wisdom.","one honest moment at a time.","because I am worthy of it.","and make room for joy.","while honoring my boundaries."]
       },
       "calm": {
-        tones: ["Breath-led", "Quiet", "Soothing", "Mindful", "Comforting", "Still"],
-        openings: [
-          "I choose",
-          "I return to",
-          "I practice",
-          "I welcome",
-          "I breathe into",
-          "I make room for",
-          "I create",
-          "I trust"
-        ],
-        middles: [
-          "a slower pace",
-          "the calm within me",
-          "a gentler rhythm",
-          "this present moment",
-          "the breath that steadies me",
-          "peace in small steps",
-          "softness in the middle of pressure",
-          "rest that restores me"
-        ],
-        endings: [
-          "right here and now.",
-          "one breath at a time.",
-          "without rushing my healing.",
-          "and let my body exhale.",
-          "even if the world feels loud.",
-          "because peace can be practiced.",
-          "with patience and care.",
-          "and release what I cannot carry."
-        ]
+        tones: ["Breath-led","Quiet","Soothing","Mindful","Comforting","Still"],
+        openings: ["I choose","I return to","I practice","I welcome","I breathe into","I make room for","I create","I trust"],
+        middles:  ["a slower pace","the calm within me","a gentler rhythm","this present moment","the breath that steadies me","peace in small steps","softness in the middle of pressure","rest that restores me"],
+        endings:  ["right here and now.","one breath at a time.","without rushing my healing.","and let my body exhale.","even if the world feels loud.","because peace can be practiced.","with patience and care.","and release what I cannot carry."]
       },
       "gratitude": {
-        tones: ["Reflective", "Simple", "Present", "Bright", "Honest", "Warm"],
-        openings: [
-          "I notice",
-          "I appreciate",
-          "I give thanks for",
-          "I make room for",
-          "I welcome",
-          "I honor",
-          "I celebrate",
-          "I cherish"
-        ],
-        middles: [
-          "the good already here",
-          "small moments of beauty",
-          "the support around me",
-          "the lessons in this season",
-          "the people who care for me",
-          "the quiet gifts of today",
-          "the progress I have made",
-          "the ordinary moments that hold meaning"
-        ],
-        endings: [
-          "with a full heart.",
-          "even when life is imperfect.",
-          "and let it deepen my joy.",
-          "without needing more to begin.",
-          "because enough is already here.",
-          "and allow myself to savor it.",
-          "with humility and delight.",
-          "one mindful breath at a time."
-        ]
+        tones: ["Reflective","Simple","Present","Bright","Honest","Warm"],
+        openings: ["I notice","I appreciate","I give thanks for","I make room for","I welcome","I honor","I celebrate","I cherish"],
+        middles:  ["the good already here","small moments of beauty","the support around me","the lessons in this season","the people who care for me","the quiet gifts of today","the progress I have made","the ordinary moments that hold meaning"],
+        endings:  ["with a full heart.","even when life is imperfect.","and let it deepen my joy.","without needing more to begin.","because enough is already here.","and allow myself to savor it.","with humility and delight.","one mindful breath at a time."]
       },
       "growth": {
-        tones: ["Forward-looking", "Motivating", "Patient", "Encouraging", "Resilient", "Gentle"],
-        openings: [
-          "I am becoming",
-          "I trust",
-          "I welcome",
-          "I grow through",
-          "I learn from",
-          "I strengthen",
-          "I build",
-          "I continue"
-        ],
-        middles: [
-          "the person I am meant to be",
-          "each small step forward",
-          "this season of change",
-          "the lessons inside challenge",
-          "my resilience every day",
-          "a future shaped by intention",
-          "new courage within me",
-          "progress that happens quietly"
-        ],
-        endings: [
-          "with patience and trust.",
-          "even when the path is slow.",
-          "and let growth unfold naturally.",
-          "without demanding perfection.",
-          "one brave choice at a time.",
-          "because I am capable of more.",
-          "and honor how far I have come.",
-          "while staying kind to myself."
-        ]
+        tones: ["Forward-looking","Motivating","Patient","Encouraging","Resilient","Gentle"],
+        openings: ["I am becoming","I trust","I welcome","I grow through","I learn from","I strengthen","I build","I continue"],
+        middles:  ["the person I am meant to be","each small step forward","this season of change","the lessons inside challenge","my resilience every day","a future shaped by intention","new courage within me","progress that happens quietly"],
+        endings:  ["with patience and trust.","even when the path is slow.","and let growth unfold naturally.","without demanding perfection.","one brave choice at a time.","because I am capable of more.","and honor how far I have come.","while staying kind to myself."]
       }
     };
 
-    function generateAffirmations() {
-      const generated = [];
-
-      Object.entries(generatedParts).forEach(([category, parts]) => {
-        parts.openings.forEach((opening, openingIndex) => {
-          parts.middles.forEach((middle, middleIndex) => {
-            parts.endings.forEach((ending, endingIndex) => {
-              const tone = parts.tones[(openingIndex + middleIndex + endingIndex) % parts.tones.length];
-              generated.push({
-                text: `${opening} ${middle} ${ending}`,
-                category,
-                tone
-              });
+    function buildGenerated() {
+      const out = [];
+      Object.entries(PARTS).forEach(([cat, p]) => {
+        p.openings.forEach((o, oi) => {
+          p.middles.forEach((m, mi) => {
+            p.endings.forEach((e, ei) => {
+              out.push({ text: `${o} ${m} ${e}`, category: cat, tone: p.tones[(oi + mi + ei) % p.tones.length] });
             });
           });
         });
       });
-
-      return generated;
+      return out;
     }
 
-    const affirmations = [...coreAffirmations, ...generateAffirmations()];
+    const ALL = [...CORE, ...buildGenerated()];
 
-    const elements = {
-      categoryChips: document.getElementById("categoryChips"),
-      affirmationText: document.getElementById("affirmationText"),
-      categoryPill: document.getElementById("categoryPill"),
-      tonePill: document.getElementById("tonePill"),
-      reflectionPrompt: document.getElementById("reflectionPrompt"),
-      favoriteButton: document.getElementById("favoriteButton"),
-      refreshButton: document.getElementById("refreshButton"),
-      copyButton: document.getElementById("copyButton"),
-      favoritesList: document.getElementById("favoritesList"),
-      historyList: document.getElementById("historyList"),
-      favoritesEmpty: document.getElementById("favoritesEmpty"),
-      historyEmpty: document.getElementById("historyEmpty"),
-      statusText: document.getElementById("statusText"),
-      totalCount: document.getElementById("totalCount"),
-      favoriteCount: document.getElementById("favoriteCount"),
-      historyCount: document.getElementById("historyCount"),
-      dailyNote: document.getElementById("dailyNote")
-    };
+    // ─────────────────────────────────────────────
+    // STATE
+    // ─────────────────────────────────────────────
+    let selectedCategory = loadVal(KEYS.category, "all");
+    let current          = null;
+    let favorites        = loadVal(KEYS.favorites, []);
+    let historyData      = loadVal(KEYS.history, []);
+    let journalEntries   = loadVal(KEYS.journal, []);
+    let rotateTimer      = null;
+    let progressTimer    = null;
+    let progressStart    = null;
+    const ROTATE_MS      = 10000;
 
-    const AUTO_ROTATE_MS = 9000;
+    // ─────────────────────────────────────────────
+    // THEME
+    // ─────────────────────────────────────────────
+    (function initTheme() {
+      const t = loadVal(KEYS.theme, "light");
+      document.documentElement.setAttribute("data-theme", t);
+      updateThemeIcon(t);
+    })();
 
-    let selectedCategory = loadValue(STORAGE_KEYS.category, "all");
-    let currentAffirmation = null;
-    let favorites = loadValue(STORAGE_KEYS.favorites, []);
-    let history = loadValue(STORAGE_KEYS.history, []);
-    let autoRotateTimer = null;
+    function toggleTheme() {
+      const cur  = document.documentElement.getAttribute("data-theme");
+      const next = cur === "dark" ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", next);
+      saveVal(KEYS.theme, next);
+      updateThemeIcon(next);
+    }
 
-    function loadValue(key, fallback) {
-      try {
-        const raw = localStorage.getItem(key);
-        return raw ? JSON.parse(raw) : fallback;
-      } catch (error) {
-        return fallback;
+    function updateThemeIcon(theme) {
+      const btn = document.getElementById("themeBtn");
+      if (btn) btn.textContent = theme === "dark" ? "☀️" : "🌙";
+    }
+
+    // ─────────────────────────────────────────────
+    // STREAK
+    // ─────────────────────────────────────────────
+    function updateStreak() {
+      const today = todayKey();
+      let streak  = loadVal(KEYS.streak, { count: 0, lastDate: "" });
+      const prev  = new Date(); prev.setDate(prev.getDate() - 1);
+      const yest  = prev.toISOString().slice(0, 10);
+
+      if (streak.lastDate === today) {
+        // already counted today
+      } else if (streak.lastDate === yest) {
+        streak = { count: streak.count + 1, lastDate: today };
+        saveVal(KEYS.streak, streak);
+      } else {
+        streak = { count: 1, lastDate: today };
+        saveVal(KEYS.streak, streak);
       }
+      document.getElementById("streakCount").textContent = streak.count;
     }
 
-    function saveValue(key, value) {
-      localStorage.setItem(key, JSON.stringify(value));
+    // ─────────────────────────────────────────────
+    // GREETING
+    // ─────────────────────────────────────────────
+    function setGreeting() {
+      const h = new Date().getHours();
+      const msg = h < 12 ? "Good morning ☀️" : h < 17 ? "Good afternoon 🌤" : h < 21 ? "Good evening 🌙" : "Rest well tonight 💫";
+      document.getElementById("greetingText").textContent = msg;
+      document.getElementById("greetingDate").textContent = new Date().toLocaleDateString("en-US", {
+        weekday: "long", month: "long", day: "numeric"
+      });
     }
 
-    function seededIndex(length) {
-      const dateKey = new Date().toISOString().slice(0, 10);
-      const seedSource = `${dateKey}-${length}`;
+    // ─────────────────────────────────────────────
+    // PROGRESS BAR
+    // ─────────────────────────────────────────────
+    function startProgress() {
+      clearInterval(progressTimer);
+      progressStart = Date.now();
+      const fill = document.getElementById("progressFill");
+      fill.style.transition = "none";
+      fill.style.width = "100%";
+      requestAnimationFrame(() => {
+        progressTimer = setInterval(() => {
+          const elapsed = Date.now() - progressStart;
+          const pct = Math.max(0, 100 - (elapsed / ROTATE_MS) * 100);
+          fill.style.transition = "width 0.9s linear";
+          fill.style.width = pct + "%";
+          if (pct <= 0) clearInterval(progressTimer);
+        }, 250);
+      });
+    }
+
+    // ─────────────────────────────────────────────
+    // AFFIRMATION HELPERS
+    // ─────────────────────────────────────────────
+    function todayKey() { return new Date().toISOString().slice(0, 10); }
+
+    function seededIndex(len) {
+      const src = `${todayKey()}-${len}`;
       let hash = 0;
-
-      for (let index = 0; index < seedSource.length; index += 1) {
-        hash = (hash << 5) - hash + seedSource.charCodeAt(index);
-        hash |= 0;
-      }
-
-      return Math.abs(hash) % length;
+      for (let i = 0; i < src.length; i++) { hash = (hash << 5) - hash + src.charCodeAt(i); hash |= 0; }
+      return Math.abs(hash) % len;
     }
 
     function getPool() {
-      return selectedCategory === "all"
-        ? affirmations
-        : affirmations.filter((item) => item.category === selectedCategory);
+      return selectedCategory === "all" ? ALL : ALL.filter(a => a.category === selectedCategory);
     }
 
     function getDailyAffirmation() {
@@ -892,197 +985,451 @@
       return pool[seededIndex(pool.length)];
     }
 
-    function categoryLabel(id) {
-      const found = categories.find((item) => item.id === id);
-      return found ? found.label : "All moods";
-    }
+    function catLabel(id) { return (CATEGORIES.find(c => c.id === id) || CATEGORIES[0]).label; }
+    function catIcon(id)  { return (CATEGORIES.find(c => c.id === id) || CATEGORIES[0]).icon;  }
 
-    function renderChips() {
-      elements.categoryChips.innerHTML = "";
+    function showAffirmation(item, addHist = true) {
+      current = item;
+      const el = document.getElementById("affirmationText");
+      el.classList.add("fade-out");
+      el.classList.remove("fade-in");
 
-      categories.forEach((category) => {
-        const button = document.createElement("button");
-        button.className = `chip${category.id === selectedCategory ? " active" : ""}`;
-        button.type = "button";
-        button.textContent = category.label;
-        button.addEventListener("click", () => {
-          selectedCategory = category.id;
-          saveValue(STORAGE_KEYS.category, selectedCategory);
-          renderChips();
-          showAffirmation(getDailyAffirmation(), true);
-          updateDailyNote();
-        });
-        elements.categoryChips.appendChild(button);
-      });
-    }
+      setTimeout(() => {
+        el.textContent = item.text;
+        document.getElementById("categoryPill").innerHTML    = `${catIcon(item.category)} ${catLabel(item.category)}`;
+        document.getElementById("tonePill").textContent      = item.tone;
+        document.getElementById("reflectionPrompt").textContent = REFLECTIONS[item.category] || REFLECTIONS.all;
+        el.classList.remove("fade-out");
+        el.classList.add("fade-in");
+        syncFavoriteBtn();
+        updateJournalPrompt();
+      }, 220);
 
-    function setStatus(message) {
-      elements.statusText.textContent = message;
-    }
-
-    function pushHistory(item) {
-      history = [
-        item,
-        ...history.filter((entry) => entry.text !== item.text)
-      ].slice(0, 5);
-
-      saveValue(STORAGE_KEYS.history, history);
-      renderHistory();
-      updateCounts();
-    }
-
-    function toggleFavorite() {
-      if (!currentAffirmation) {
-        return;
-      }
-
-      const exists = favorites.some((item) => item.text === currentAffirmation.text);
-
-      if (exists) {
-        favorites = favorites.filter((item) => item.text !== currentAffirmation.text);
-        setStatus("Removed from favorites.");
-      } else {
-        favorites = [currentAffirmation, ...favorites].slice(0, 8);
-        setStatus("Saved to favorites.");
-      }
-
-      saveValue(STORAGE_KEYS.favorites, favorites);
-      renderFavorites();
-      syncFavoriteButton();
-      updateCounts();
-    }
-
-    function syncFavoriteButton() {
-      const isFavorite = currentAffirmation && favorites.some((item) => item.text === currentAffirmation.text);
-      elements.favoriteButton.textContent = isFavorite ? "Remove favorite" : "Save to favorites";
-    }
-
-    function renderFavorites() {
-      elements.favoritesList.innerHTML = "";
-
-      favorites.forEach((item) => {
-        const li = document.createElement("li");
-        li.className = "favorite-item";
-        li.innerHTML = `
-          <span class="item-tag">${categoryLabel(item.category)}</span>
-          <p class="item-text">${item.text}</p>
-        `;
-        elements.favoritesList.appendChild(li);
-      });
-
-      elements.favoritesEmpty.style.display = favorites.length ? "none" : "block";
-    }
-
-    function renderHistory() {
-      elements.historyList.innerHTML = "";
-
-      history.forEach((item) => {
-        const li = document.createElement("li");
-        li.className = "history-item";
-        li.innerHTML = `
-          <span class="item-tag">${categoryLabel(item.category)}</span>
-          <p class="item-text">${item.text}</p>
-        `;
-        elements.historyList.appendChild(li);
-      });
-
-      elements.historyEmpty.style.display = history.length ? "none" : "block";
-    }
-
-    function updateCounts() {
-      elements.totalCount.textContent = affirmations.length;
-      elements.favoriteCount.textContent = favorites.length;
-      elements.historyCount.textContent = history.length;
-    }
-
-    function updateDailyNote() {
-      const daily = getDailyAffirmation();
-      elements.dailyNote.textContent = `Daily anchor: ${daily.text}`;
-    }
-
-    function showAffirmation(item, addToHistory = true) {
-      currentAffirmation = item;
-      elements.affirmationText.classList.add("fade");
-
-      window.setTimeout(() => {
-        elements.affirmationText.textContent = item.text;
-        elements.categoryPill.textContent = categoryLabel(item.category);
-        elements.tonePill.textContent = `${item.tone} tone`;
-        elements.reflectionPrompt.textContent = reflections[item.category] || reflections.all;
-        elements.affirmationText.classList.remove("fade");
-        syncFavoriteButton();
-      }, 180);
-
-      if (addToHistory) {
-        pushHistory(item);
-      }
+      if (addHist) pushHistory(item);
     }
 
     function nextAffirmation() {
       const pool = getPool();
-
-      if (pool.length === 1) {
-        showAffirmation(pool[0]);
-        return;
-      }
-
+      if (pool.length === 1) { showAffirmation(pool[0]); return; }
       let next = pool[Math.floor(Math.random() * pool.length)];
-
-      while (currentAffirmation && next.text === currentAffirmation.text) {
-        next = pool[Math.floor(Math.random() * pool.length)];
-      }
-
+      let t = 0;
+      while (current && next.text === current.text && t++ < 12) next = pool[Math.floor(Math.random() * pool.length)];
       showAffirmation(next);
-      setStatus("Fresh affirmation loaded.");
     }
 
-    function restartAutoRotate() {
-      if (autoRotateTimer) {
-        window.clearInterval(autoRotateTimer);
+    function restartRotation() {
+      clearInterval(rotateTimer);
+      rotateTimer = setInterval(nextAffirmation, ROTATE_MS);
+      startProgress();
+    }
+
+    // ─────────────────────────────────────────────
+    // FAVORITES
+    // ─────────────────────────────────────────────
+    function toggleFavorite() {
+      if (!current) return;
+      const exists = favorites.some(f => f.text === current.text);
+      if (exists) {
+        favorites = favorites.filter(f => f.text !== current.text);
+        toast("Removed from favorites");
+      } else {
+        favorites = [current, ...favorites].slice(0, 40);
+        toast("✦ Saved to favorites!");
+        spawnConfetti();
       }
-
-      autoRotateTimer = window.setInterval(() => {
-        nextAffirmation();
-      }, AUTO_ROTATE_MS);
+      saveVal(KEYS.favorites, favorites);
+      renderFavorites(); syncFavoriteBtn(); updateCounts();
     }
 
-    async function copyCurrentAffirmation() {
-      if (!currentAffirmation) {
+    function removeFavorite(text) {
+      favorites = favorites.filter(f => f.text !== text);
+      saveVal(KEYS.favorites, favorites);
+      renderFavorites(); syncFavoriteBtn(); updateCounts();
+      toast("Removed");
+    }
+
+    function syncFavoriteBtn() {
+      const isFav = current && favorites.some(f => f.text === current.text);
+      document.getElementById("favoriteButton").textContent = isFav ? "♥ Unfavorite" : "♡ Save favorite";
+    }
+
+    function renderFavorites() {
+      const list     = document.getElementById("favoritesList");
+      const empty    = document.getElementById("favoritesEmpty");
+      const sub      = document.getElementById("favSubtitle");
+      const clearBtn = document.getElementById("clearFavBtn");
+      list.innerHTML = "";
+
+      if (!favorites.length) {
+        empty.style.display = "block";
+        sub.textContent     = "None saved yet";
+        clearBtn.style.display = "none";
         return;
       }
+      empty.style.display    = "none";
+      sub.textContent        = `${favorites.length} saved`;
+      clearBtn.style.display = "block";
 
-      const copyText = `${currentAffirmation.text} (${categoryLabel(currentAffirmation.category)})`;
+      favorites.forEach((item, i) => {
+        const li = document.createElement("li");
+        li.className = "list-item";
+        li.style.animationDelay = `${i * 35}ms`;
+        li.innerHTML = `
+          <div class="item-content">
+            <span class="item-tag">${catIcon(item.category)} ${catLabel(item.category)}</span>
+            <p class="item-text">${item.text}</p>
+          </div>
+          <button class="item-remove" title="Remove" aria-label="Remove from favorites">✕</button>
+        `;
+        li.querySelector(".item-content").addEventListener("click", () => { showAffirmation(item, false); toast("Loaded"); });
+        li.querySelector(".item-remove").addEventListener("click", e => { e.stopPropagation(); removeFavorite(item.text); });
+        list.appendChild(li);
+      });
+    }
 
-      try {
-        await navigator.clipboard.writeText(copyText);
-        setStatus("Affirmation copied to clipboard.");
-      } catch (error) {
-        setStatus("Clipboard access was unavailable.");
+    // ─────────────────────────────────────────────
+    // HISTORY
+    // ─────────────────────────────────────────────
+    function pushHistory(item) {
+      historyData = [item, ...historyData.filter(h => h.text !== item.text)].slice(0, 12);
+      saveVal(KEYS.history, historyData);
+      renderHistory(); updateCounts();
+    }
+
+    function renderHistory() {
+      const list     = document.getElementById("historyList");
+      const empty    = document.getElementById("historyEmpty");
+      const sub      = document.getElementById("histSubtitle");
+      const clearBtn = document.getElementById("clearHistBtn");
+      list.innerHTML = "";
+
+      if (!historyData.length) {
+        empty.style.display    = "block";
+        sub.textContent        = "No recent reflections";
+        clearBtn.style.display = "none";
+        return;
+      }
+      empty.style.display    = "none";
+      sub.textContent        = `${historyData.length} recent`;
+      clearBtn.style.display = "block";
+
+      historyData.forEach((item, i) => {
+        const li = document.createElement("li");
+        li.className = "list-item";
+        li.style.animationDelay = `${i * 28}ms`;
+        li.innerHTML = `
+          <div class="item-content">
+            <span class="item-tag">${catLabel(item.category)}</span>
+            <p class="item-text">${item.text}</p>
+          </div>
+        `;
+        li.addEventListener("click", () => { showAffirmation(item, false); toast("Loaded"); });
+        list.appendChild(li);
+      });
+    }
+
+    // ─────────────────────────────────────────────
+    // CATEGORY CHIPS
+    // ─────────────────────────────────────────────
+    function renderChips() {
+      const container = document.getElementById("categoryChips");
+      container.innerHTML = "";
+      CATEGORIES.forEach(cat => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = `chip${cat.id === selectedCategory ? " active" : ""}`;
+        btn.innerHTML = `${cat.icon} ${cat.label}`;
+        btn.setAttribute("aria-pressed", cat.id === selectedCategory ? "true" : "false");
+        btn.addEventListener("click", () => {
+          selectedCategory = cat.id;
+          saveVal(KEYS.category, selectedCategory);
+          renderChips();
+          showAffirmation(getDailyAffirmation(), true);
+          updateDailyAnchor();
+          restartRotation();
+        });
+        container.appendChild(btn);
+      });
+    }
+
+    // ─────────────────────────────────────────────
+    // JOURNAL
+    // ─────────────────────────────────────────────
+    function updateJournalPrompt() {
+      if (!current) return;
+      const snippet = current.text.length > 65 ? current.text.slice(0, 65) + "…" : current.text;
+      document.getElementById("journalPromptText").textContent = `Reflecting on: "${snippet}"`;
+    }
+
+    function saveJournalEntry() {
+      const input = document.getElementById("journalInput");
+      const text  = input.value.trim();
+      if (!text) { toast("Please write something first"); return; }
+
+      const entry = {
+        id         : Date.now(),
+        text,
+        affirmation: current ? current.text : "",
+        category   : current ? current.category : "all",
+        date       : new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+        time       : new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })
+      };
+
+      journalEntries = [entry, ...journalEntries].slice(0, 25);
+      saveVal(KEYS.journal, journalEntries);
+      input.value = "";
+      document.getElementById("charCount").textContent = "0";
+      renderJournal();
+      toast("✎ Reflection saved!");
+    }
+
+    function renderJournal() {
+      const container = document.getElementById("journalEntries");
+      container.innerHTML = "";
+      journalEntries.slice(0, 6).forEach(e => {
+        const div = document.createElement("div");
+        div.className = "journal-entry";
+        div.innerHTML = `
+          <div class="journal-entry-meta">
+            <span>${e.date}</span><span>${e.time}</span>
+            <span style="color:var(--secondary);">${catLabel(e.category)}</span>
+          </div>
+          ${e.affirmation ? `<div class="journal-affirmation-ref">"${e.affirmation.slice(0, 72)}${e.affirmation.length > 72 ? "…" : ""}"</div>` : ""}
+          <div class="journal-entry-text">${e.text}</div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    // ─────────────────────────────────────────────
+    // BREATHING  –  4-7-8 technique
+    // ─────────────────────────────────────────────
+    const BREATH_PHASES = [
+      { name: "inhale", label: "Inhale",  duration: 4,  cssClass: "inhale" },
+      { name: "hold",   label: "Hold",    duration: 7,  cssClass: "hold"   },
+      { name: "exhale", label: "Exhale",  duration: 8,  cssClass: "exhale" }
+    ];
+    const MAX_CYCLES = 4;
+    let breathPhaseIdx   = 0;
+    let breathCyclesDone = 0;
+    let breathTimer      = null;
+    let breathCountdown  = 0;
+    let breathActive     = false;
+
+    function startBreathing() {
+      breathPhaseIdx   = 0;
+      breathCyclesDone = 0;
+      breathActive     = true;
+      document.getElementById("breathStartBtn").style.display = "none";
+      document.getElementById("breathResetBtn").style.display = "inline-flex";
+      runBreathPhase();
+    }
+
+    function stopBreathing() {
+      clearTimeout(breathTimer);
+      breathActive = false;
+      const ring = document.getElementById("breathRing");
+      ring.className = "breath-ring";
+      document.getElementById("breathCount").textContent     = "—";
+      document.getElementById("breathLabel").textContent     = "Ready";
+      document.getElementById("breathStartBtn").style.display = "inline-flex";
+      document.getElementById("breathResetBtn").style.display = "none";
+      document.getElementById("breathCyclesInfo").textContent = "Complete 4 cycles to feel centered";
+    }
+
+    function runBreathPhase() {
+      if (!breathActive) return;
+      const phase      = BREATH_PHASES[breathPhaseIdx];
+      breathCountdown  = phase.duration;
+      const ring       = document.getElementById("breathRing");
+      ring.className   = `breath-ring ${phase.cssClass}`;
+      document.getElementById("breathLabel").textContent = phase.label;
+
+      function tick() {
+        if (!breathActive) return;
+        document.getElementById("breathCount").textContent = breathCountdown;
+        if (breathCountdown <= 0) {
+          breathPhaseIdx = (breathPhaseIdx + 1) % BREATH_PHASES.length;
+          if (breathPhaseIdx === 0) {
+            breathCyclesDone++;
+            const left = MAX_CYCLES - breathCyclesDone;
+            document.getElementById("breathCyclesInfo").textContent =
+              left > 0 ? `${left} cycle${left !== 1 ? "s" : ""} remaining` : "Well done! ✦";
+            if (breathCyclesDone >= MAX_CYCLES) { stopBreathing(); toast("✦ Breathing session complete. Well done."); return; }
+          }
+          runBreathPhase(); return;
+        }
+        breathCountdown--;
+        breathTimer = setTimeout(tick, 1000);
+      }
+      tick();
+    }
+
+    // ─────────────────────────────────────────────
+    // DAILY ANCHOR
+    // ─────────────────────────────────────────────
+    function updateDailyAnchor() {
+      document.getElementById("dailyAnchorText").textContent = getDailyAffirmation().text;
+    }
+
+    // ─────────────────────────────────────────────
+    // STATS
+    // ─────────────────────────────────────────────
+    function updateCounts() {
+      animateStat("totalCount",    ALL.length);
+      animateStat("favoriteCount", favorites.length);
+      animateStat("historyCount",  historyData.length);
+    }
+
+    function animateStat(id, target) {
+      const el  = document.getElementById(id);
+      const cur = parseInt(el.textContent) || 0;
+      if (cur === target) return;
+      const step = (target - cur) / 14;
+      let val = cur;
+      const t = setInterval(() => {
+        val += step;
+        const rounded = Math.round(val);
+        el.textContent = rounded;
+        if (Math.abs(rounded - target) <= 1) { el.textContent = target; clearInterval(t); }
+      }, 28);
+    }
+
+    // ─────────────────────────────────────────────
+    // TOAST
+    // ─────────────────────────────────────────────
+    function toast(msg, ms = 2600) {
+      const c = document.getElementById("toastContainer");
+      const t = document.createElement("div");
+      t.className   = "toast";
+      t.textContent = msg;
+      c.appendChild(t);
+      setTimeout(() => { t.classList.add("out"); setTimeout(() => t.remove(), 280); }, ms);
+    }
+
+    // ─────────────────────────────────────────────
+    // CONFETTI
+    // ─────────────────────────────────────────────
+    function spawnConfetti() {
+      const colors = ["#c85c3a","#e8a83e","#2e6f68","#f3bf62","#ab4526","#4a9990","#d7ebe8","#f4c87e"];
+      for (let i = 0; i < 26; i++) {
+        setTimeout(() => {
+          const el        = document.createElement("div");
+          el.className    = "confetti-piece";
+          el.style.cssText = `
+            left:${30 + Math.random() * 40}%;
+            top:${35 + Math.random() * 12}%;
+            background:${colors[Math.floor(Math.random() * colors.length)]};
+            transform:rotate(${Math.random() * 360}deg);
+            width:${5 + Math.random() * 7}px;
+            height:${5 + Math.random() * 7}px;
+            border-radius:${Math.random() > 0.5 ? "50%" : "2px"};
+          `;
+          document.body.appendChild(el);
+          setTimeout(() => el.remove(), 1400);
+        }, i * 28);
       }
     }
 
-    elements.refreshButton.addEventListener("click", () => {
-      nextAffirmation();
-      restartAutoRotate();
+    // ─────────────────────────────────────────────
+    // SHARE / COPY / PRINT
+    // ─────────────────────────────────────────────
+    async function shareAffirmation() {
+      if (!current) return;
+      const text = `"${current.text}" — Affirmation Studio`;
+      if (navigator.share) {
+        try { await navigator.share({ title: "Affirmation Studio", text }); } catch {}
+      } else {
+        try { await navigator.clipboard.writeText(text); toast("📋 Copied to clipboard!"); } catch { toast("Share not available in this browser"); }
+      }
+    }
+
+    async function copyAffirmation() {
+      if (!current) return;
+      try { await navigator.clipboard.writeText(`"${current.text}"`); toast("⎘ Copied!"); }
+      catch  { toast("Clipboard access unavailable"); }
+    }
+
+    function printFavorites() {
+      if (!favorites.length) { toast("No favorites to print yet"); return; }
+      const lines = favorites.map((f, i) => `${i + 1}. ${f.text}  [${catLabel(f.category)}]`).join("\n\n");
+      const win = window.open("", "_blank");
+      win.document.write(`<pre style="font-family:Georgia,serif;font-size:1rem;line-height:1.85;padding:48px;max-width:680px;margin:0 auto;white-space:pre-wrap;">Affirmation Studio — My Favorites\n${"—".repeat(44)}\n\n${lines}\n\n${"—".repeat(44)}\nPrinted on ${new Date().toLocaleDateString()}</pre>`);
+      win.document.close(); win.print();
+    }
+
+    // ─────────────────────────────────────────────
+    // STORAGE HELPERS
+    // ─────────────────────────────────────────────
+    function loadVal(key, fallback) {
+      try { const r = localStorage.getItem(key); return r ? JSON.parse(r) : fallback; } catch { return fallback; }
+    }
+    function saveVal(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch {} }
+
+    // ─────────────────────────────────────────────
+    // KEYBOARD SHORTCUTS
+    // ─────────────────────────────────────────────
+    document.addEventListener("keydown", e => {
+      if (document.activeElement.tagName === "TEXTAREA" || document.activeElement.tagName === "INPUT") return;
+      if (e.key === " " || e.code === "Space") { e.preventDefault(); nextAffirmation(); restartRotation(); }
+      if (e.key === "f" || e.key === "F") toggleFavorite();
+      if (e.key === "c" || e.key === "C") copyAffirmation();
     });
 
-    elements.favoriteButton.addEventListener("click", () => {
-      toggleFavorite();
-      restartAutoRotate();
+    // ─────────────────────────────────────────────
+    // TOUCH SWIPE
+    // ─────────────────────────────────────────────
+    let touchX = 0;
+    document.addEventListener("touchstart", e => { touchX = e.touches[0].clientX; }, { passive: true });
+    document.addEventListener("touchend",   e => {
+      if (Math.abs(e.changedTouches[0].clientX - touchX) > 72) { nextAffirmation(); restartRotation(); }
+    }, { passive: true });
+
+    // ─────────────────────────────────────────────
+    // WIRE UP EVENTS
+    // ─────────────────────────────────────────────
+    document.getElementById("refreshButton").addEventListener("click",  () => { nextAffirmation(); restartRotation(); });
+    document.getElementById("favoriteButton").addEventListener("click", () => { toggleFavorite();  restartRotation(); });
+    document.getElementById("copyButton").addEventListener("click",     () => { copyAffirmation(); restartRotation(); });
+    document.getElementById("themeBtn").addEventListener("click",       toggleTheme);
+    document.getElementById("shareBtn").addEventListener("click",       shareAffirmation);
+    document.getElementById("breathStartBtn").addEventListener("click", startBreathing);
+    document.getElementById("breathResetBtn").addEventListener("click", stopBreathing);
+    document.getElementById("saveJournalBtn").addEventListener("click", saveJournalEntry);
+    document.getElementById("printFavsBtn").addEventListener("click",   printFavorites);
+    document.getElementById("journalInput").addEventListener("input",   function() {
+      document.getElementById("charCount").textContent = this.value.length;
+    });
+    document.getElementById("clearFavBtn").addEventListener("click", () => {
+      if (!confirm("Clear all favorites?")) return;
+      favorites = []; saveVal(KEYS.favorites, favorites);
+      renderFavorites(); syncFavoriteBtn(); updateCounts();
+      toast("Favorites cleared");
+    });
+    document.getElementById("clearHistBtn").addEventListener("click", () => {
+      historyData = []; saveVal(KEYS.history, historyData);
+      renderHistory(); updateCounts();
+      toast("History cleared");
     });
 
-    elements.copyButton.addEventListener("click", () => {
-      copyCurrentAffirmation();
-      restartAutoRotate();
-    });
-
+    // ─────────────────────────────────────────────
+    // INITIALISE
+    // ─────────────────────────────────────────────
+    setGreeting();
+    updateStreak();
     renderChips();
     renderFavorites();
     renderHistory();
+    renderJournal();
     updateCounts();
-    updateDailyNote();
+    updateDailyAnchor();
     showAffirmation(getDailyAffirmation(), false);
-    restartAutoRotate();
+    restartRotation();
+
+    // ─── Service Worker (offline support) ───
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/sw.js").catch(() => {});
+    }
   </script>
 </body>
 </html>
