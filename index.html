@@ -530,20 +530,105 @@
     .app-footer { text-align: center; font-size: 0.8rem; color: var(--muted-light); padding: 6px 0 4px; line-height: 1.8; }
 
     /* =================== RESPONSIVE =================== */
-    @media (max-width: 740px) {
-      .panels-grid { grid-template-columns: 1fr; }
-      .app-header { padding: 14px 16px; }
-      .affirmation-body { padding: 24px 20px 20px; }
-      .big-quote { max-width: none; font-size: clamp(1.6rem, 5.5vw, 2.8rem); }
-      .brand-tagline { display: none; }
-      .greeting-bar { flex-direction: column; align-items: flex-start; gap: 3px; }
+
+    /* ── Large tablets / small laptops (≤ 900px) ── */
+    @media (max-width: 900px) {
+      .page { width: min(100% - 28px, 960px); }
+      .orb-1 { width: 320px; height: 320px; }
+      .orb-2 { width: 260px; height: 260px; }
+      .orb-3 { width: 200px; height: 200px; }
     }
-    @media (max-width: 480px) {
-      .page { width: min(100% - 14px, 960px); padding-top: 12px; }
-      .action-row { flex-direction: column; }
-      .action-row .btn { width: 100%; justify-content: center; }
-      .stats-row { grid-template-columns: 1fr; }
+
+    /* ── Tablet (≤ 740px) ── */
+    @media (max-width: 740px) {
+      .page { width: min(100% - 24px, 960px); padding: 12px 0 36px; }
+      .panels-grid { grid-template-columns: 1fr; }
+      .app-header { padding: 13px 16px; gap: 10px; }
+      .brand-tagline { display: none; }
+      .brand-name { font-size: 1.05rem; }
+      .brand-icon { width: 38px; height: 38px; font-size: 1.1rem; }
+      .streak-badge { padding: 6px 11px; font-size: 0.8rem; }
+      .header-controls { gap: 7px; }
+      .icon-btn { width: 36px; height: 36px; font-size: 0.95rem; border-radius: 10px; }
+      .affirmation-stage { padding: 10px; }
+      .affirmation-body { padding: 22px 20px 18px; }
+      .affirmation-inner { min-height: 320px; }
+      .big-quote { max-width: none; font-size: clamp(1.55rem, 5.5vw, 2.6rem); }
+      .decorative-qmark { font-size: 4.5rem; top: 20px; right: 22px; }
+      .greeting-bar { flex-direction: column; align-items: flex-start; gap: 2px; padding: 11px 18px; }
+      .category-nav { padding: 12px 16px; gap: 6px; }
+      .chip { padding: 6px 13px; font-size: 0.83rem; }
+      .side-panel { padding: 18px; }
+      .stats-row { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+      .stat-value { font-size: 1.45rem; }
+      .daily-anchor { padding: 12px 15px; }
+      .breath-ring { width: 128px; height: 128px; }
+      .breath-count { font-size: 1.65rem; }
+    }
+
+    /* ── Mobile (≤ 540px) ── */
+    @media (max-width: 540px) {
+      .page { width: min(100% - 16px, 960px); padding: 10px 0 28px; }
+      .app-header { padding: 11px 14px; }
+      .streak-badge { display: none; }           /* hide streak on very small, show via footer */
+      .header-controls { gap: 6px; }
+      .affirmation-stage { padding: 8px; }
+      .affirmation-body { padding: 18px 16px 16px; }
+      .affirmation-inner { min-height: 280px; }
+      .affirmation-label { font-size: 0.68rem; }
+      .big-quote { font-size: clamp(1.45rem, 6vw, 2.2rem); margin-bottom: 14px; }
+      .decorative-qmark { font-size: 3.5rem; top: 14px; right: 16px; }
+      .reflection-prompt { font-size: 0.87rem; margin-bottom: 16px; }
+      .action-row { flex-direction: column; gap: 8px; }
+      .action-row .btn { width: 100%; justify-content: center; font-size: 0.88rem; }
       .keyboard-hint { display: none; }
+      .greeting-bar { padding: 10px 14px; font-size: 0.85rem; }
+      .greeting-text { font-size: 0.88rem; }
+      .greeting-date { font-size: 0.78rem; }
+      .category-nav { padding: 10px 12px; overflow-x: auto; flex-wrap: nowrap; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+      .category-nav::-webkit-scrollbar { display: none; }
+      #categoryChips { flex-wrap: nowrap; }
+      .chip { white-space: nowrap; flex-shrink: 0; padding: 6px 12px; font-size: 0.81rem; }
+      .side-panel { padding: 16px; }
+      .panel-title { font-size: 0.98rem; }
+      .stats-row { grid-template-columns: repeat(3, 1fr); gap: 7px; }
+      .stat-card { padding: 12px 8px; }
+      .stat-value { font-size: 1.3rem; }
+      .stat-label { font-size: 0.72rem; }
+      .journal-input { min-height: 78px; font-size: 0.9rem; }
+      .journal-footer { flex-direction: column; align-items: stretch; gap: 8px; }
+      .journal-footer .btn { width: 100%; justify-content: center; }
+      .breath-ring { width: 116px; height: 116px; }
+      .breath-count { font-size: 1.5rem; }
+      .breath-btns { gap: 8px; }
+      .breath-btns .btn { flex: 1; justify-content: center; }
+      .daily-anchor { padding: 11px 13px; gap: 9px; }
+      .daily-anchor-text { font-size: 0.86rem; }
+      .orb-1 { width: 240px; height: 240px; top: -80px; right: -70px; }
+      .orb-2 { width: 200px; height: 200px; bottom: -60px; left: -60px; }
+      .orb-3 { width: 160px; height: 160px; }
+      .app-footer { font-size: 0.74rem; }
+      .list-item { padding: 11px 12px; }
+      .item-text { font-size: 0.85rem; }
+      .affirmation-list { max-height: 240px; }
+      .journal-entries { max-height: 210px; }
+    }
+
+    /* ── Small mobile / iPhone SE (≤ 380px) ── */
+    @media (max-width: 380px) {
+      .page { width: min(100% - 12px, 960px); }
+      .app-header { padding: 10px 12px; }
+      .brand-name { font-size: 0.97rem; }
+      .brand-icon { width: 34px; height: 34px; font-size: 1rem; border-radius: 10px; }
+      .icon-btn { width: 33px; height: 33px; font-size: 0.88rem; }
+      .big-quote { font-size: clamp(1.3rem, 6.5vw, 1.9rem); }
+      .affirmation-body { padding: 15px 13px 14px; }
+      .decorative-qmark { font-size: 3rem; }
+      .stats-row { grid-template-columns: 1fr 1fr; }
+      .stats-row .stat-card:last-child { grid-column: 1 / -1; }
+      .breath-ring { width: 104px; height: 104px; }
+      .breath-count { font-size: 1.35rem; }
+      .chip { padding: 5px 10px; font-size: 0.78rem; }
     }
 
     ::-webkit-scrollbar { width: 5px; }
